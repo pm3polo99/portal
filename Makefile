@@ -17,7 +17,7 @@ xwin: $(INC)/xwin.c
 	gcc $(CFLAGS) $(EFLAGS) -g -c -o $(LIB)/xwin.o $(INC)/xwin.c
 
 lab1: lab1.c $(LIB)/log.o $(LIB)/xwin.o $(LIB)/timing.o
-	gcc $(CFLAGS) $(EFLAGS) $(LFLAGS) -g -o lab1 lab1.c $(LIB)/log.o $(LIB)/xwin.o $(LIB)/timing.o
+	gcc $(CFLAGS) $(EFLAGS) $(LFLAGS) -g lab1.c $(LIB)/log.o $(LIB)/xwin.o $(LIB)/timing.o
 
 clean:
 	rm -f lab1 *.o core
