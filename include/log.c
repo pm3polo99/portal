@@ -10,7 +10,7 @@ static FILE *fpxx;
 
 void logOpen(void)
 {
-	fpxx = fopen("lab1.log","w");
+	fpxx = fopen("1.log","w");
 }
 
 void logClose(void)
