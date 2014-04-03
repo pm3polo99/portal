@@ -1,6 +1,7 @@
 /****** TO DO *****
- * on collision, "teleport" sprite to other side of window
- */
+ * top and bottom and left edge collision detection dont work
+ * collision detection on object sucks, bad
+*/
 
 
 //cs335 Spring 2014
@@ -28,6 +29,7 @@
 #include <X11/keysym.h>
 //#include <GL/gl.h>
 #include <GL/glx.h>
+#include <GL/gl.h>
 //#include <GL/glu.h>
 
 #include "log.h"
@@ -72,6 +74,8 @@ void init_sounds(void);
 void physics(void);
 void render(void);
 
+void putWall(void);
+void putOval(void); // retarded oval
 
 //global variables
 int done=0;
@@ -230,17 +234,46 @@ void check_keys(XEvent *e)
 	 //The Escape key exits the program.
 	 //Other keys could have some functionality.
 	 switch(key) {
-		  case XK_f:
+		  case XK_q:
+				printf("Q\n");
+				break;
+		  case XK_d:
+				printf("D\n");
+				break;
+		  case XK_e:
+				printf("E\n");
+				break;
+		  case XK_a:
+				printf("A\n");
+				break;
+		  case XK_w:
+				printf("W\n");
 				break;
 		  case XK_s:
+				printf("S\n");
+				break;
+		  case XK_f:
+				printf("F\n");
 				break;
 		  case XK_Left:
+				pos[0] -= 5;
+				printf("Left!\n");
 				break;
 		  case XK_Right:
+				pos[0] += 5;
+				printf("Right!\n");
 				break;
 		  case XK_Up:
+				pos[1] += 5;
+				printf("Up!\n");
 				break;
 		  case XK_Down:
+				pos[1] -= 5;
+				printf("Down!\n");
+				break;
+		  case XK_space:
+				pos[1] += 15;
+				printf("Jump!\n");
 				break;
 		  case XK_equal:
 				break;
@@ -256,18 +289,40 @@ void physics(void)
 {
 	 int addgrav = 1;
 	 //Update position of object using its velocity
-	 pos[0] += vel[0];
-	 pos[1] += vel[1];
+	 /* DEBUG */
+	 /*
+		 printf("\nin phys:\npos[0] = %f\npos[1] = %f\nvel[0] = %f\nvel[1] = %f\n",
+		 pos[0], pos[1], vel[0], vel[1]);
+		 */
+	 /* DEBUG */
+	 // move
+	 /*
+		 pos[0] += vel[0];
+		 pos[1] += vel[1];
+		 */
 	 //Now, update the velocity...
 	 //Check for collision with window edges
-	 if ((pos[0] < 0.0          && vel[0] < 0.0) ||
-				(pos[0] >= (float)xres && vel[0] > 0.0)) // horizontal limits
+	 // *** i added a small buffer so were not exactly on the edge of the thing
+	 // for loop, go through a list of objects, check for collision
+	 if (pos[0]+38.0 >= (xres/3)-3 && pos[0]+38.0 <= (xres/3)+3 && vel[0] > 0.0) // at 1/3(ish) across screen
 	 {
-		  vel[0] = -vel[0]; // flip direction
+		  pos[0] = 2*((float)xres/3.0)+38.0; // move to 2/3 - TELEPORT!
+		  addgrav = 0;
+	 }
+	 else if (pos[0]-38.0 >= (2*xres/3)-3 && pos[0]-38.0 <= (2*xres/3)+3 && vel[0] > 0.0) // at 2/3(ish) across screen
+	 {
+		  pos[0] = ((float)xres/3.0)-38.0; // move to 1/3 - TELEPORT!
+		  addgrav = 0;
+	 }
+	 if ((pos[0]-38.0 < 0.0 && vel[0] < 0.0) ||
+				(pos[0]+38.0 >= (float)xres && vel[0] > 0.0)) // horizontal limits
+	 {
+		  //		  vel[0] = -vel[0]; // flip direction
+		  pos[0] = (float)0.0+38.0; // wrap
 		  addgrav = 0; // add gravity
 	 }
-	 if ((pos[1] < 0.0          && vel[1] < 0.0) ||
-				(pos[1] >= (float)yres && vel[1] > 0.0)) // verticle limits
+	 if ((pos[1]-38.0 < 0.0 && vel[1] < 0.0) ||
+				(pos[1]+38.0 >= (float)yres && vel[1] > 0.0)) // verticle limits
 	 {
 		  vel[1] = -vel[1];
 		  addgrav = 0;
@@ -277,9 +332,47 @@ void physics(void)
 		  vel[1] -= 0.5;
 }
 
+void putOval(void)
+{
+	 glClear (GL_COLOR_BUFFER_BIT);
+	 glColor3ub (0, 0, 0);
+	 float left = (float)xres/3.0;
+	 float right = 2*(float)xres/3.0;
+	 float top = (float)yres/1.3;
+	 float bot = 0.0;
+	 float z = 0.0;
+	 glBegin(GL_POLYGON);
+	 glVertex3f (left + left/4, bot, z);
+	 glVertex3f (right - right/4, bot, z);
+	 glVertex3f (right, top/2, z);
+	 glVertex3f (right - right/4, top, z);
+	 glVertex3f (left + left/4, top, z);
+	 glVertex3f (left, top/2, z);
+	 glEnd();
+	 glPopMatrix();
+}
+
+void putWall(void)
+{
+	 glClear (GL_COLOR_BUFFER_BIT);
+	 glColor3ub (0, 0, 0);
+	 float left = (float)xres/3.0;
+	 float right = 2*(float)xres/3.0;
+	 float top = (float)yres/1.3;
+	 float bot = 0.0;
+	 float z = 0.0;
+	 glBegin(GL_POLYGON);
+	 glVertex3f (left, bot, z);
+	 glVertex3f (right, bot, z);
+	 glVertex3f (right, top, z);
+	 glVertex3f (left, top, z);
+	 glEnd();
+	 glPopMatrix();
+}
+
 void render(void)
 {
-	 const char heading[] = "cs335 lab1 - Template for an OpenGL animation";
+	 const char heading[] = "animation";
 	 Rect r;
 
 	 glClear(GL_COLOR_BUFFER_BIT);
@@ -287,7 +380,7 @@ void render(void)
 	 r.left = 10;
 	 r.center = 0;
 	 ggprint8b(&r, 16, 0, heading);
-	 //
+	 putOval();
 	 //Draw a simple square
 	 {
 		  float wid = 40.0f;
@@ -302,5 +395,6 @@ void render(void)
 		  glEnd();
 		  glPopMatrix();
 	 }
+	 // try to draw a rectangle in the middle of the screen
 }
 
