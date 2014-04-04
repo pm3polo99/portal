@@ -1,9 +1,37 @@
 #include "shapes.h"
 
+void destroyPortal (portal *p)
+{
+	 int i = 0;
+	 p->isPortal = 0; // not a portal - yet
+	 while (i < xres)
+	 {
+		  free(p->pos[i++]);
+	 }
+	 free(p->pos);
+	 p = 000;
+	 objcnt--;
+	 portalcnt--;
+}
+
+void destroyWall (wall *w)
+{
+	 int i = 0;
+	 w->isPortal = 0; // not a portal
+	 while (i < xres)
+	 {
+		  free(w->pos[i++]);
+	 }
+	 free(w->pos);
+	 w = 000;
+	 objcnt--;
+	 wallcnt--;
+}
+
 void initPortal (portal *p)
 {
 	 p->pos = (int **)malloc(xres*sizeof(int**));
-	 int i = 0, j = 0;
+	 int i = 0;
 	 while (i < xres)
 	 {
 		  p->pos[i++] = (int *)malloc(yres*sizeof(int*));
@@ -16,7 +44,7 @@ void initPortal (portal *p)
 void initWall (wall *w)
 {
 	 w->pos = (int **)malloc(xres*sizeof(int**));
-	 int i = 0, j = 0;
+	 int i = 0;
 	 while (i < xres)
 	 {
 		  w->pos[i++] = (int *)malloc(yres*sizeof(int*));
