@@ -36,6 +36,8 @@
 #include "fonts.h"
 #include "timing.h"
 #include "xwin.h"
+#include "const.h"
+#include "createShapes.h"
 
 // defined types
 typedef double Flt;
@@ -80,9 +82,11 @@ void putOval(void); // retarded oval
 //global variables
 int done=0;
 
+// shapes
+double **oval;
+
 static float pos[3]={20.0,200.0,0.0};
 static float vel[3]={5.0,0.0,0.0};
-
 
 int main(void)
 {
@@ -184,7 +188,13 @@ void check_resize(XEvent *e)
 
 void init() {
 	 //no initialization being done.
-
+	 oval = (double **)malloc(1000*sizeof(double*));
+	 int i = 0;
+	 while (i < 1000)
+	 {
+		  oval[i++] = (double *)malloc(2*sizeof(double));
+	 }
+	 createOval();
 }
 
 void check_mouse(XEvent *e)
@@ -256,23 +266,24 @@ void check_keys(XEvent *e)
 				printf("F\n");
 				break;
 		  case XK_Left:
-				pos[0] -= 5;
+				pos[0] -= 50;
 				printf("Left!\n");
 				break;
 		  case XK_Right:
-				pos[0] += 5;
+				// on key press, check collision, then move
+				pos[0] += 50;
 				printf("Right!\n");
 				break;
 		  case XK_Up:
-				pos[1] += 5;
+				pos[1] += 50;
 				printf("Up!\n");
 				break;
 		  case XK_Down:
-				pos[1] -= 5;
+				pos[1] -= 50;
 				printf("Down!\n");
 				break;
 		  case XK_space:
-				pos[1] += 15;
+				pos[1] += 150;
 				printf("Jump!\n");
 				break;
 		  case XK_equal:
@@ -304,28 +315,25 @@ void physics(void)
 	 //Check for collision with window edges
 	 // *** i added a small buffer so were not exactly on the edge of the thing
 	 // for loop, go through a list of objects, check for collision
-	 if (pos[0]+38.0 >= (xres/3)-3 && pos[0]+38.0 <= (xres/3)+3 && vel[0] > 0.0) // at 1/3(ish) across screen
+	 //
+
+	 if (pos[0]-38.0 >= (float)xres) // right edge
 	 {
-		  pos[0] = 2*((float)xres/3.0)+38.0; // move to 2/3 - TELEPORT!
-		  addgrav = 0;
+		  pos[0] = 2.0+38.0; // wrap
 	 }
-	 else if (pos[0]-38.0 >= (2*xres/3)-3 && pos[0]-38.0 <= (2*xres/3)+3 && vel[0] > 0.0) // at 2/3(ish) across screen
+	 if (pos[0]+38.0 <= 0.0) // on left edge
 	 {
-		  pos[0] = ((float)xres/3.0)-38.0; // move to 1/3 - TELEPORT!
-		  addgrav = 0;
+		  pos[0] = (float)xres - 38.0 - 2;
+		  //gravity not important now
 	 }
-	 if ((pos[0]-38.0 < 0.0 && vel[0] < 0.0) ||
-				(pos[0]+38.0 >= (float)xres && vel[0] > 0.0)) // horizontal limits
+
+	 if (pos[1]+38.0 < 0.0) // bottom
 	 {
-		  //		  vel[0] = -vel[0]; // flip direction
-		  pos[0] = (float)0.0+38.0; // wrap
-		  addgrav = 0; // add gravity
+		  pos[1] = (float)yres - 38.0 - 2;
 	 }
-	 if ((pos[1]-38.0 < 0.0 && vel[1] < 0.0) ||
-				(pos[1]+38.0 >= (float)yres && vel[1] > 0.0)) // verticle limits
+	 if (pos[1]-38.0 >= (float)yres) // top
 	 {
-		  vel[1] = -vel[1];
-		  addgrav = 0;
+		  pos[1] = 0.0 + 38.0 + 2;
 	 }
 	 //Apply gravity
 	 if (addgrav)
@@ -336,18 +344,23 @@ void putOval(void)
 {
 	 glClear (GL_COLOR_BUFFER_BIT);
 	 glColor3ub (0, 0, 0);
-	 float left = (float)xres/3.0;
-	 float right = 2*(float)xres/3.0;
-	 float top = (float)yres/1.3;
-	 float bot = 0.0;
 	 float z = 0.0;
-	 glBegin(GL_POLYGON);
-	 glVertex3f (left + left/4, bot, z);
-	 glVertex3f (right - right/4, bot, z);
-	 glVertex3f (right, top/2, z);
-	 glVertex3f (right - right/4, top, z);
-	 glVertex3f (left + left/4, top, z);
-	 glVertex3f (left, top/2, z);
+	 glBegin(GL_TRIANGLE_FAN);
+
+	 /* actually starting at mid right??
+	  * x = sin(t), y = cos(t)
+	  */
+	 int i = 0;
+	 do
+	 {
+		  /* stuff */
+		  printf("oval[i][0] = %f\n", oval[i][0]);
+		  printf("oval[i][1] = %f\n", oval[i][1]);
+		  glVertex3f(oval[i][0], oval[i][1], z);
+		  i++;
+	 }
+	 while (i < 1000);
+
 	 glEnd();
 	 glPopMatrix();
 }
