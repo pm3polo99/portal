@@ -8,22 +8,17 @@
 extern double ** oval;
 extern int xres;
 extern int yres;
-#ifndef _ZRES
-#define _ZRES
-int zres = 1;
-#else
 extern int zres;
-#endif
-/*
 extern int objcnt;
-extern int wallcnt;
 extern int portalcnt;
-*/
 
 #ifndef _SHAPES_H
 #define _SHAPES_H
 
-void initWall (wall *);
+void destroyObj (obj *);
+void destroyPortal (portal *);
+void initWall (obj *);
+void initPortal (portal *);
 void createOval(void);
 
 #endif // shapes.h

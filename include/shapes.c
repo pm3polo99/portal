@@ -14,18 +14,17 @@ void destroyPortal (portal *p)
 	 portalcnt--;
 }
 
-void destroyWall (wall *w)
+void destroyObj (obj *o)
 {
 	 int i = 0;
-	 w->isPortal = 0; // not a portal
+	 o->isPortal = 0; // not a portal
 	 while (i < xres)
 	 {
-		  free(w->pos[i++]);
+		  free(o->pos[i++]);
 	 }
-	 free(w->pos);
-	 w = 000;
+	 free(o->pos);
+	 o = 000;
 	 objcnt--;
-	 wallcnt--;
 }
 
 void initPortal (portal *p)
@@ -41,17 +40,16 @@ void initPortal (portal *p)
 	 portalcnt++;
 }
 
-void initWall (wall *w)
+void initObj (obj *o)
 {
-	 w->pos = (int **)malloc(xres*sizeof(int**));
+	 o->pos = (int **)malloc(xres*sizeof(int**));
 	 int i = 0;
 	 while (i < xres)
 	 {
-		  w->pos[i++] = (int *)malloc(yres*sizeof(int*));
+		  o->pos[i++] = (int *)malloc(yres*sizeof(int*));
 	 }
-	 w->isPortal = 0; // not a portal
+	 o->isPortal = 0; // not a portal
 	 objcnt++;
-	 wallcnt++;
 }
 
 void createOval(void)

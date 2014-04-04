@@ -1,15 +1,11 @@
 #ifndef _OBJ_H
 #define _OBJ_H
 
-static int objcnt = 0;
-static int wallcnt = 0;
-static int portalcnt = 0;
-
-typedef struct _wall
+typedef struct _obj
 {
 	 int ** pos;
 	 int isPortal; // not a portal. needed???
-} wall;
+} obj;
 
 typedef struct _portal
 {
