@@ -1,7 +1,7 @@
 /****** TO DO *****
- * top and bottom and left edge collision detection dont work
- * collision detection on object sucks, bad
-*/
+ * create list of portal objects to check when collision occurs
+ * maybe create list of all objects - walls, obstacles, etc
+ */
 
 
 //cs335 Spring 2014
@@ -36,8 +36,12 @@
 #include "fonts.h"
 #include "timing.h"
 #include "xwin.h"
+#include "shapes.h"
+
+#ifndef _CONST_H
+#define _CONST_H
 #include "const.h"
-#include "createShapes.h"
+#endif
 
 // defined types
 typedef double Flt;
@@ -60,11 +64,6 @@ double timeSpan=0.0;
 //macros
 #define rnd() (((double)rand())/(double)RAND_MAX)
 #define random(a) (rand()%a)
-
-//constants
-const float timeslice = 1.0f;
-const float gravity = -0.2f;
-#define ALPHA 1
 
 //function prototypes
 void init_opengl(void);
@@ -266,25 +265,20 @@ void check_keys(XEvent *e)
 				printf("F\n");
 				break;
 		  case XK_Left:
-				pos[0] -= 50;
-				printf("Left!\n");
+				pos[0] -= 10;
 				break;
 		  case XK_Right:
 				// on key press, check collision, then move
-				pos[0] += 50;
-				printf("Right!\n");
+				pos[0] += 10;
 				break;
 		  case XK_Up:
-				pos[1] += 50;
-				printf("Up!\n");
+				pos[1] += 10;
 				break;
 		  case XK_Down:
-				pos[1] -= 50;
-				printf("Down!\n");
+				pos[1] -= 10;
 				break;
 		  case XK_space:
 				pos[1] += 150;
-				printf("Jump!\n");
 				break;
 		  case XK_equal:
 				break;
@@ -354,8 +348,6 @@ void putOval(void)
 	 do
 	 {
 		  /* stuff */
-		  printf("oval[i][0] = %f\n", oval[i][0]);
-		  printf("oval[i][1] = %f\n", oval[i][1]);
 		  glVertex3f(oval[i][0], oval[i][1], z);
 		  i++;
 	 }

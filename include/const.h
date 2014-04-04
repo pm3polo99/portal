@@ -1,9 +1,9 @@
 #ifndef _CONST_H
 #define _CONST_H
 
-#ifndef _PI
-#define _PI
 static const double pi = 3.14159265;
-#endif // pi
+static const float timeslice = 1.0f;
+static const float gravity = -0.2f;
+#define ALPHA 1
 
 #endif // const.h
