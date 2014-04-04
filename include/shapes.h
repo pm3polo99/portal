@@ -14,6 +14,11 @@ int zres = 1;
 #else
 extern int zres;
 #endif
+/*
+extern int objcnt;
+extern int wallcnt;
+extern int portalcnt;
+*/
 
 #ifndef _SHAPES_H
 #define _SHAPES_H

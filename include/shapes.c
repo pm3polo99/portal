@@ -1,5 +1,18 @@
 #include "shapes.h"
 
+void initPortal (portal *p)
+{
+	 p->pos = (int **)malloc(xres*sizeof(int**));
+	 int i = 0, j = 0;
+	 while (i < xres)
+	 {
+		  p->pos[i++] = (int *)malloc(yres*sizeof(int*));
+	 }
+	 p->isPortal = 0; // not a portal - yet
+	 objcnt++;
+	 portalcnt++;
+}
+
 void initWall (wall *w)
 {
 	 w->pos = (int **)malloc(xres*sizeof(int**));
@@ -8,6 +21,9 @@ void initWall (wall *w)
 	 {
 		  w->pos[i++] = (int *)malloc(yres*sizeof(int*));
 	 }
+	 w->isPortal = 0; // not a portal
+	 objcnt++;
+	 wallcnt++;
 }
 
 void createOval(void)
