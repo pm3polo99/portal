@@ -52,6 +52,7 @@ typedef Flt	Matrix[4][4];
 // X Windows variables
 int xres = 800;
 int yres = 600;
+int zres = 1;
 
 // Timing variables
 const double physicsRate = 1.0 / 60.0;
@@ -77,10 +78,14 @@ void physics(void);
 void render(void);
 
 void putWall(void);
-void putOval(void); // retarded oval
+void putOval(void);
+void cleanupObjects(void);
 
 //global variables
 int done=0;
+int objcnt = 0;
+int wallcnt = 0;
+int portalcnt = 0;
 
 // shapes
 // instead of individual shapes, make a list of shapes
@@ -137,8 +142,20 @@ int main(void)
 	 }
 	 cleanupXWindows();
 	 cleanup_fonts();
+	 cleanupObjects();
 	 logClose();
 	 return 0;
+}
+
+void cleanupObjects()
+{
+	 int i = 0;
+	 while (i < 1000)
+	 {
+		  free(oval[i++]);
+	 }
+	 free(oval);
+	 return;
 }
 
 void reshape_window(int width, int height)
@@ -189,8 +206,8 @@ void check_resize(XEvent *e)
 }
 
 
-void init() {
-	 //no initialization being done.
+void init()
+{
 	 oval = (double **)malloc(1000*sizeof(double*));
 	 int i = 0;
 	 while (i < 1000)
