@@ -1,6 +1,7 @@
 /****** TO DO *****
  * create list of portal objects to check when collision occurs
  * maybe create list of all objects - walls, obstacles, etc
+ * make sure to free used memory
  */
 
 
@@ -82,6 +83,9 @@ void putOval(void); // retarded oval
 int done=0;
 
 // shapes
+// instead of individual shapes, make a list of shapes
+// to do a list of shapes (general), need to move to c++, no issue i think, try for pure c
+// maybe struct obj with structs for every obj and integers for count of each object type, one int for count of total objects
 double **oval;
 
 static float pos[3]={20.0,200.0,0.0};
@@ -243,23 +247,23 @@ void check_keys(XEvent *e)
 	 //The Escape key exits the program.
 	 //Other keys could have some functionality.
 	 switch(key) {
-		  case XK_q:
-				printf("Q\n");
-				break;
-		  case XK_d:
-				printf("D\n");
-				break;
-		  case XK_e:
-				printf("E\n");
+		  case XK_w:
+				printf("W\n");
 				break;
 		  case XK_a:
 				printf("A\n");
 				break;
-		  case XK_w:
-				printf("W\n");
-				break;
 		  case XK_s:
 				printf("S\n");
+				break;
+		  case XK_d:
+				printf("D\n");
+				break;
+		  case XK_q:
+				printf("Q\n");
+				break;
+		  case XK_e:
+				printf("E\n");
 				break;
 		  case XK_f:
 				printf("F\n");

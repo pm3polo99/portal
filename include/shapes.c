@@ -1,5 +1,15 @@
 #include "shapes.h"
 
+void initWall (wall *w)
+{
+	 w->pos = (int **)malloc(xres*sizeof(int**));
+	 int i = 0, j = 0;
+	 while (i < xres)
+	 {
+		  w->pos[i++] = (int *)malloc(yres*sizeof(int*));
+	 }
+}
+
 void createOval(void)
 {
 	 float x = 0.0, y = 0.0;
