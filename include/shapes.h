@@ -21,7 +21,7 @@ struct obj ** olist;
 
 void destroyObj (int);
 //struct obj* destroyObj (struct obj *);
-void destroyPortal (struct portal *);
+void destroyPortal (int);
 //struct obj* initObj (void);
 void initObj (void);
 void initPortal (void);

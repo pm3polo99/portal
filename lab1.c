@@ -284,6 +284,7 @@ void check_keys(XEvent *e)
 				printf("F\n");
 				break;
 		  case XK_Left:
+				//if (!collide(&(const int)(pos[0] - 10), &(const int)pos[1], &(const int)pos[2])) // if where i'm trying to go causes a collision, dont go into the light. pass x, y, z coords.
 				pos[0] -= 10;
 				break;
 		  case XK_Right:
