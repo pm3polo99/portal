@@ -10,22 +10,21 @@ extern double ** oval;
 extern int xres;
 extern int yres;
 extern int zres;
-extern int objcnt;
-extern int portalcnt;
+int objcnt = 0;
+int portalcnt = 0;
 
-struct portal * p1;
-struct obj ** objlist;
-static const int pWidth = 100;
-static const int pHeight = 150;
+struct portal * plist[2]; // ptr to a portal object. 2 max.
+int plast; // last created portal - the other is the one to modify
+struct obj ** olist;
 #ifndef _SHAPES_H
 #define _SHAPES_H
 
 void destroyObj (int);
 //struct obj* destroyObj (struct obj *);
-struct portal* destroyPortal (struct portal *);
+void destroyPortal (struct portal *);
 //struct obj* initObj (void);
 void initObj (void);
-struct portal* initPortal (void);
+void initPortal (void);
 void drawOval(float **);
 
 #endif // shapes.h
