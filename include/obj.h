@@ -3,10 +3,11 @@
 
 static const int pWidth = 100;
 static const int pHeight = 150;
+static int maxobj = 0;
 
 struct obj
 {
-	 float ** pos;
+	 float *** pos;
 	 float halfWidth;
 	 float halfHeight;
 	 float halfDepth;
@@ -15,7 +16,7 @@ struct obj
 
 struct portal
 {
-	 float ** pos;
+	 float *** pos;
 	 float halfWidth;
 	 float halfHeight;
 	 float halfDepth;

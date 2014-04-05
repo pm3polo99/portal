@@ -9,11 +9,16 @@ void destroyPortal (int p)
 	 Log("start of destroyPortal\n");
 	 if (plist[p] == 000)
 		  return;
-	 int i = 0;
+	 int i = 0, j = 0;
 	 plist[p]->isPortal = 0; // not a portal - yet
 	 while (i < imgres)
 	 {
-		  free(plist[p]->pos[i++]);
+		  while (j < imgres)
+		  {
+				free(plist[p]->pos[i][j]);
+				j++;
+		  }
+		  i++;
 	 }
 	 free(plist[p]->pos);
 	 plist[p] = 000;
@@ -25,11 +30,16 @@ void destroyPortal (int p)
 void destroyObj (int o)
 {
 	 Log("start of destroyObj\n");
-	 int i = 0;
+	 int i = 0, j = 0;
 	 olist[o]->isPortal = 0; // not a portal
 	 while (i < imgres)
 	 {
-		  free(olist[o]->pos[i++]);
+		  while (j < imgres)
+		  {
+				free(olist[o]->pos[i][j]);
+				j++;
+		  }
+		  i++;
 	 }
 	 free(olist[o]->pos);
 	 olist[o] = 000;
@@ -49,11 +59,20 @@ void initPortal (void) // easy - only ever two, check if two, then one turns int
 	 {
 		  p = (struct portal*)malloc(1*sizeof(struct portal*));
 	 }
-	 p->pos = (float **)malloc(imgres*sizeof(float**));
-	 int i = 0;
+	 p->pos = (float ***)malloc(imgres*sizeof(float***));
+	 int i = 0, j = 0;
 	 while (i < imgres)
 	 {
-		  p->pos[i++] = (float *)malloc(imgres*sizeof(float*));
+		  p->pos[i++] = (float **)malloc(imgres*sizeof(float**));
+	 }
+	 i = 0;
+	 while (i < imgres)
+	 {
+		  while (j < imgres)
+		  {
+				p->pos[i][j++] = (float *)malloc(imgres*sizeof(float*));
+		  }
+		  i++;
 	 }
 	 p->isPortal = 0; // not a portal - yet
 	 p->halfWidth = pWidth/2.0;
@@ -65,6 +84,7 @@ void initPortal (void) // easy - only ever two, check if two, then one turns int
 void initObj (void) // make a new object. check for full/uninitialized list.
 {
 	 Log("start of initObj\n");
+	 int i = 0;
 	 if (objcnt == 0) // uninitialized
 	 {
 		  objcnt += 1;
@@ -72,21 +92,39 @@ void initObj (void) // make a new object. check for full/uninitialized list.
 		  olist = (struct obj**)malloc((objcnt)*2*sizeof(struct obj*));
 		  objcnt -= 1;
 	 }
-	 else if (olist[objcnt+1] == 000) // need a variable to hold size of olist
+	 else if (objcnt == maxobj-1)
 	 {
-		  /* stuff */
+		  struct obj ** tmp;
+		  int c = objcnt;
+		  tmp = (struct obj**)malloc((maxobj)*2*sizeof(struct obj*));
+		  while (i < c)
+		  {
+				tmp[i] = olist[i];
+				destroyObj(i);
+				i++;
+		  }
+		  olist = tmp;
+		  objcnt = c;
 	 }
 	 struct obj * o = 000;
 	 if (o == 000)
 	 {
 		  o = (struct obj*)malloc(1*sizeof(struct obj*));
 	 }
-	 o->pos = (float **)malloc(imgres*sizeof(float**));
-	 int i = 0;
+	 int j = 0;
+	 o->pos = (float ***)malloc(imgres*sizeof(float***));
 	 while (i < imgres)
 	 {
-		  o->pos[i] = (float *)malloc(imgres*sizeof(float*));
-		  o->pos[i++] = 000;
+		  o->pos[i++] = (float **)malloc(imgres*sizeof(float**));
+	 }
+	 i = 0;
+	 while (i < imgres)
+	 {
+		  while (j < imgres)
+		  {
+				o->pos[i][j++] = (float *)malloc(imgres*sizeof(float*));
+		  }
+		  i++;
 	 }
 	 o->isPortal = 0; // not a portal
 	 olist[objcnt++] = o;

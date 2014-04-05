@@ -13,6 +13,12 @@
 #ifndef _COLLISION_H
 #define _COLLISION_H
 
-int collide(const int *, const int *, const int *);
+int px (int *);
+int py (int *);
+int pz (int *);
+int nx (int *);
+int ny (int *);
+int nz (int *);
+int collide(int *, int *);
 
 #endif /* collision.h */

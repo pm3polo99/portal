@@ -11,9 +11,9 @@
  * make sure to always pass 1 for z value, not 0
  * */
 
-int collide(int *a, int *b) // maybe have this return a pointer - new b????? that way we can modify if there is a collision - handle collisions here!
+int collide(int *a, int *b)
 {
-	 // check objlist and portallst (recursively in separate function?) for collision
+	 // sanity checking
 	 if (a == 000 || b == 000)
 		  return -1; // bad args
 	 if (b[0] < 1)
@@ -33,7 +33,7 @@ int collide(int *a, int *b) // maybe have this return a pointer - new b????? tha
 	 int result = 0;
 
 	 /* below is a fairly basic algo to keep checking until there is no conflict
-	  * could be optimized
+	  * may be optimizable
 	  */
 	 do
 	 {
@@ -52,7 +52,7 @@ int collide(int *a, int *b) // maybe have this return a pointer - new b????? tha
 		  }
 		  if (vec[0] < 0)
 		  {
-				resutl += nx(&b[0]);
+				result += nx(&b[0]);
 		  }
 		  if (vec[1] < 0)
 		  {
@@ -62,9 +62,13 @@ int collide(int *a, int *b) // maybe have this return a pointer - new b????? tha
 		  {
 				result += nz(&b[2]);
 		  }
-		  vec = {(b[0]-a[0]), (b[1]-a[1]), (b[2]-a[2])}; // recalc. should eliminate unnecessary checks
+		  vec[0] = (b[0]-a[0]);
+		  vec[1] = (b[1]-a[1]);
+		  vec[2] = (b[2]-a[2]); // recalc. should eliminate unnecessary checks
 	 }
 	 while (result != 0);
+
+	 return 0;
 }
 
 int px (int * b)
@@ -74,14 +78,17 @@ int px (int * b)
 	 {
 		  while (x < imgres) // check entire axis of object
 		  {
-				if (b >= olist[i]->pos[x]) // references are proper?? collision. I THINK WE NEED A *** (XYZ) for pos within obj.h
+				if (*b >= olist[i]->pos[x]) // references are proper?? collision. I THINK WE NEED A *** (XYZ) for pos within obj.h
 				{
+					 *b = olist[i]->pos[x]; // set to max - you shal not pass!
+					 Log("Collision with olist[%d]!\n", i);
 					 return i;
 				}
 				x++;
 		  }
 		  i++;
 	 }
+	 return 0;
 }
 
 int py (int * b)
@@ -93,8 +100,10 @@ int py (int * b)
 		  {
 				while (y < imgres)
 				{
-					 if (b >= olist[i]->pos[x][y]) // references are proper?? collision. I THINK WE NEED A *** (XYZ) for pos within obj.h
+					 if (*b >= olist[i]->pos[x][y]) // references are proper?? collision. I THINK WE NEED A *** (XYZ) for pos within obj.h
 					 {
+						  *b = olist[i]->pos[x][y]; // set to max - you shal not pass!
+						  Log("Collision with olist[%d]!\n", i);
 						  return i;
 					 }
 					 y++;
@@ -103,6 +112,7 @@ int py (int * b)
 		  }
 		  i++;
 	 }
+	 return 0;
 }
 
 int pz (int * b)
@@ -116,8 +126,10 @@ int pz (int * b)
 				{
 					 while (z < imgres)
 					 {
-						  if (b >= olist[i]->pos[x][y][z]) // references are proper?? collision. I THINK WE NEED A *** (XYZ) for pos within obj.h
+						  if (*b >= olist[i]->pos[x][y][z]) // references are proper?? collision. I THINK WE NEED A *** (XYZ) for pos within obj.h
 						  {
+								*b = olist[i]->pos[x][y][z]; // set to max - you shal not pass!
+								Log("Collision with olist[%d]!\n", i);
 								return i;
 						  }
 						  z++;
@@ -126,8 +138,9 @@ int pz (int * b)
 				}
 				x++;
 		  }
+		  i++;
 	 }
-	 i++;
+	 return 0;
 }
 
 int nx (int * b)
@@ -137,14 +150,17 @@ int nx (int * b)
 	 {
 		  while (x < imgres) // check entire axis of object
 		  {
-				if (b <= olist[i]->pos[x]) // references are proper?? collision. I THINK WE NEED A *** (XYZ) for pos within obj.h
+				if (*b <= olist[i]->pos[x]) // references are proper?? collision. I THINK WE NEED A *** (XYZ) for pos within obj.h
 				{
+					 *b = olist[i]->pos[x]; // set to max - you shal not pass!
+					 Log("Collision with olist[%d]!\n", i);
 					 return i;
 				}
 				x++;
 		  }
 		  i++;
 	 }
+	 return 0;
 }
 
 int ny (int * b)
@@ -156,8 +172,10 @@ int ny (int * b)
 		  {
 				while (y < imgres)
 				{
-					 if (b <= olist[i]->pos[x][y]) // references are proper?? collision. I THINK WE NEED A *** (XYZ) for pos within obj.h
+					 if (*b <= olist[i]->pos[x][y]) // references are proper?? collision. I THINK WE NEED A *** (XYZ) for pos within obj.h
 					 {
+						  *b = olist[i]->pos[x][y]; // set to max - you shal not pass!
+						  Log("Collision with olist[%d]!\n", i);
 						  return i;
 					 }
 					 y++;
@@ -166,6 +184,7 @@ int ny (int * b)
 		  }
 		  i++;
 	 }
+	 return 0;
 }
 
 int nz (int * b)
@@ -179,8 +198,10 @@ int nz (int * b)
 				{
 					 while (z < imgres)
 					 {
-						  if (b <= olist[i]->pos[x][y][z]) // references are proper?? collision. I THINK WE NEED A *** (XYZ) for pos within obj.h
+						  if (*b <= olist[i]->pos[x][y][z]) // references are proper?? collision. I THINK WE NEED A *** (XYZ) for pos within obj.h
 						  {
+								*b = olist[i]->pos[x][y][z]; // set to max - you shal not pass!
+								Log("Collision with olist[%d]!\n", i);
 								return i;
 						  }
 						  z++;
@@ -189,8 +210,9 @@ int nz (int * b)
 				}
 				x++;
 		  }
+		  i++;
 	 }
-	 i++;
+	 return 0;
 }
 
 #endif /* collision.c */
