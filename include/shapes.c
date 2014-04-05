@@ -94,8 +94,8 @@ void drawOval(float ** oval)
 		  y = sin(t);
 		  x += 1;
 		  y += 1;
-		  x *= 100; // scale circle - radius
-		  y *= 150;
+		  x *= pWidth; // scale circle - radius
+		  y *= pHeight;
 		  oval[i][0] = x;
 		  oval[i][1] = y;
 		  i++;

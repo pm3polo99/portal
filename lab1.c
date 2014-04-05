@@ -359,6 +359,8 @@ void putOval(void)
 	 glClear (GL_COLOR_BUFFER_BIT);
 	 glColor3ub (0, 0, 0);
 	 float z = 0.0;
+	 glPushMatrix();
+	 glTranslatef((xres/2)/*-half the widthof the object*/, 0.0, z);
 	 glBegin(GL_TRIANGLE_FAN);
 	 /* actually starting at mid right??
 	  * x = sin(t), y = cos(t)

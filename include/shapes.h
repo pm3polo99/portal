@@ -15,6 +15,8 @@ extern int portalcnt;
 
 struct portal * p1;
 struct obj ** objlist;
+static const int pWidth = 100;
+static const int pHeight = 150;
 #ifndef _SHAPES_H
 #define _SHAPES_H
 
