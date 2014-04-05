@@ -1,59 +1,89 @@
 #include "shapes.h"
 
-void destroyPortal (portal *p)
+struct portal * destroyPortal (struct portal *p)
 {
+	 Log("start of destroyPortal\n");
+	 if (p == 000)
+		  return p;
 	 int i = 0;
 	 p->isPortal = 0; // not a portal - yet
-	 while (i < xres)
+	 while (i < 1000)
 	 {
 		  free(p->pos[i++]);
 	 }
 	 free(p->pos);
 	 p = 000;
-	 objcnt--;
-	 portalcnt--;
+	 Log("end of destroyPortal\n");
+	 return p;
 }
 
-void destroyObj (obj *o)
+//struct obj * destroyObj (struct obj *o)
+void destroyObj (int o)
 {
+	 Log("start of destroyObj\n");
 	 int i = 0;
-	 o->isPortal = 0; // not a portal
-	 while (i < xres)
+	 objlist[o]->isPortal = 0; // not a portal
+	 while (i < 1000)
 	 {
-		  free(o->pos[i++]);
+		  free(objlist[o]->pos[i++]);
 	 }
-	 free(o->pos);
-	 o = 000;
+	 free(objlist[o]->pos);
+	 objlist[o] = 000;
 	 objcnt--;
+	 Log("end of destroyObj\n");
+	 return;
 }
 
-void initPortal (portal *p)
+struct portal * initPortal (void) // easy - only ever two, check if two, then one turns into new portal. need to check age??
 {
-	 p->pos = (int **)malloc(xres*sizeof(int**));
-	 int i = 0;
-	 while (i < xres)
+	 Log("start of initPortal\n");
+	 struct portal * p = 000;
+	 if (p == 000)
 	 {
-		  p->pos[i++] = (int *)malloc(yres*sizeof(int*));
+		  p = (struct portal*)malloc(1*sizeof(struct portal*));
+	 }
+	 p->pos = (float **)malloc(1000*sizeof(float**));
+	 int i = 0;
+	 while (i < 1000)
+	 {
+		  p->pos[i++] = (float *)malloc(1000*sizeof(float*));
 	 }
 	 p->isPortal = 0; // not a portal - yet
-	 objcnt++;
-	 portalcnt++;
+	 Log("end of initPortal\n");
+	 return p;
 }
 
-void initObj (obj *o)
+void initObj (void) // make a new object. check for full/uninitialized list.
 {
-	 o->pos = (int **)malloc(xres*sizeof(int**));
-	 int i = 0;
-	 while (i < xres)
+	 Log("start of initObj\n");
+	 if (objcnt == 0 || objlist[objcnt+1] == 000) // uninitialized or full
 	 {
-		  o->pos[i++] = (int *)malloc(yres*sizeof(int*));
+		  objcnt += 1;
+		  // get more memory
+		  objlist = (struct obj**)malloc((objcnt)*2*sizeof(struct obj*));
+		  objcnt -= 1;
+	 }
+	 struct obj * o = 000;
+	 if (o == 000)
+	 {
+		  o = (struct obj*)malloc(1*sizeof(struct obj*));
+	 }
+	 o->pos = (float **)malloc(1000*sizeof(float**));
+	 int i = 0;
+	 while (i < 1000)
+	 {
+		  o->pos[i] = (float *)malloc(1000*sizeof(float*));
+		  o->pos[i++] = 000;
 	 }
 	 o->isPortal = 0; // not a portal
-	 objcnt++;
+	 objlist[objcnt++] = o;
+	 Log("end of initObj\n");
+//	 return o;
 }
 
-void createOval(void)
+void drawOval(float ** oval)
 {
+	 Log("start drawOval\n");
 	 float x = 0.0, y = 0.0;
 	 float t = 0.0;
 	 int i = 0;
@@ -71,4 +101,5 @@ void createOval(void)
 		  i++;
 	 }
 	 while (t < 360 && i < 1000); // try t as a counter
+	 Log("end drawOval\n");
 }

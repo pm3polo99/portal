@@ -81,17 +81,17 @@ void putWall(void);
 void putOval(void);
 void cleanupObjects(void);
 
+int collision(struct portal *p);
+
 //global variables
 int done=0;
 int objcnt = 0;
-int wallcnt = 0;
-int portalcnt = 0;
 
 // shapes
 // instead of individual shapes, make a list of shapes
 // to do a list of shapes (general), need to move to c++, no issue i think, try for pure c
 // maybe struct obj with structs for every obj and integers for count of each object type, one int for count of total objects
-double **oval;
+
 
 static float pos[3]={20.0,200.0,0.0};
 static float vel[3]={5.0,0.0,0.0};
@@ -99,6 +99,7 @@ static float vel[3]={5.0,0.0,0.0};
 int main(void)
 {
 	 logOpen();
+	 Log("start of main\n");
 	 initXWindows();
 	 init_opengl();
 	 init();
@@ -149,12 +150,12 @@ int main(void)
 
 void cleanupObjects()
 {
-	 int i = 0;
-	 while (i < 1000)
+	 int i = objcnt;
+	 while (i > 0)
 	 {
-		  free(oval[i++]);
+		  destroyObj(--i);
 	 }
-	 free(oval);
+	 p1 = destroyPortal(p1);
 	 return;
 }
 
@@ -208,13 +209,11 @@ void check_resize(XEvent *e)
 
 void init()
 {
-	 oval = (double **)malloc(1000*sizeof(double*));
-	 int i = 0;
-	 while (i < 1000)
-	 {
-		  oval[i++] = (double *)malloc(2*sizeof(double));
-	 }
-	 createOval();
+	 p1 = 000;
+	 initObj();
+	 p1 = initPortal();
+	 drawOval(p1->pos);
+	 Log("end of init\n");
 }
 
 void check_mouse(XEvent *e)
@@ -361,15 +360,13 @@ void putOval(void)
 	 glColor3ub (0, 0, 0);
 	 float z = 0.0;
 	 glBegin(GL_TRIANGLE_FAN);
-
 	 /* actually starting at mid right??
 	  * x = sin(t), y = cos(t)
 	  */
 	 int i = 0;
 	 do
 	 {
-		  /* stuff */
-		  glVertex3f(oval[i][0], oval[i][1], z);
+		  glVertex3f(p1->pos[i][0], p1->pos[i][1], z);
 		  i++;
 	 }
 	 while (i < 1000);
