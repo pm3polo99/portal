@@ -71,92 +71,24 @@ int collide(int *a, int *b)
 	 return 0;
 }
 
-int px (int * b)
-{
-	 int i = 0, x = 0;
-	 while (i < objcnt) // check all objects
-	 {
-		  while (x < imgres) // check entire axis of object
-		  {
-				if (*b >= olist[i]->pos[x]) // references are proper?? collision. I THINK WE NEED A *** (XYZ) for pos within obj.h
-				{
-					 *b = olist[i]->pos[x]; // set to max - you shal not pass!
-					 Log("Collision with olist[%d]!\n", i);
-					 return i;
-				}
-				x++;
-		  }
-		  i++;
-	 }
-	 return 0;
-}
-
-int py (int * b)
-{
-	 int i = 0, x = 0, y = 0;
-	 while (i < objcnt) // check all objects
-	 {
-		  while (x < imgres) // check entire axis of object
-		  {
-				while (y < imgres)
-				{
-					 if (*b >= olist[i]->pos[x][y]) // references are proper?? collision. I THINK WE NEED A *** (XYZ) for pos within obj.h
-					 {
-						  *b = olist[i]->pos[x][y]; // set to max - you shal not pass!
-						  Log("Collision with olist[%d]!\n", i);
-						  return i;
-					 }
-					 y++;
-				}
-				x++;
-		  }
-		  i++;
-	 }
-	 return 0;
-}
-
-int pz (int * b)
-{
-	 int i = 0, x = 0, y = 0, z = 0;
-	 while (i < objcnt) // check all objects
-	 {
-		  while (x < imgres) // check entire axis of object
-		  {
-				while (y < imgres)
-				{
-					 while (z < imgres)
-					 {
-						  if (*b >= olist[i]->pos[x][y][z]) // references are proper?? collision. I THINK WE NEED A *** (XYZ) for pos within obj.h
-						  {
-								*b = olist[i]->pos[x][y][z]; // set to max - you shal not pass!
-								Log("Collision with olist[%d]!\n", i);
-								return i;
-						  }
-						  z++;
-					 }
-					 y++;
-				}
-				x++;
-		  }
-		  i++;
-	 }
-	 return 0;
-}
-
 int nx (int * b)
 {
-	 int i = 0, x = 0;
+	 int i = 0, y = 0, z = 0;
 	 while (i < objcnt) // check all objects
 	 {
-		  while (x < imgres) // check entire axis of object
+		  while (y < imgres)
 		  {
-				if (*b <= olist[i]->pos[x]) // references are proper?? collision. I THINK WE NEED A *** (XYZ) for pos within obj.h
+				while (z < imgres)
 				{
-					 *b = olist[i]->pos[x]; // set to max - you shal not pass!
-					 Log("Collision with olist[%d]!\n", i);
-					 return i;
+					 if (olist[i]->img[*b][y][z] == 1) // collision. on this planei
+					 {
+						  (*b)++;
+						  Log("Collision with olist[%d] on x-axis!\n", i);
+						  return i;
+					 }
+					 z++;
 				}
-				x++;
+				y++;
 		  }
 		  i++;
 	 }
@@ -165,17 +97,43 @@ int nx (int * b)
 
 int ny (int * b)
 {
+	 int i = 0, x = 0, z = 0;
+	 while (i < objcnt) // check all objects
+	 {
+		  while (x < imgres)
+		  {
+				while (z < imgres)
+				{
+					 if (olist[i]->img[x][*b][z] == 1) // collision. on this planei
+					 {
+						  (*b)++;
+						  Log("Collision with olist[%d] on y-axis!\n", i);
+						  return i;
+					 }
+					 z++;
+				}
+				x++;
+		  }
+		  i++;
+	 }
+	 return 0;
+}
+
+// check b on xy-plane. if any b on xy == 1, collision, else, no collision.
+// maybe add in limits on xy to be within size of object and witihn size of person
+int nz (int * b)
+{
 	 int i = 0, x = 0, y = 0;
 	 while (i < objcnt) // check all objects
 	 {
-		  while (x < imgres) // check entire axis of object
+		  while (x < imgres)
 		  {
 				while (y < imgres)
 				{
-					 if (*b <= olist[i]->pos[x][y]) // references are proper?? collision. I THINK WE NEED A *** (XYZ) for pos within obj.h
+					 if (olist[i]->img[x][y][*b] == 1) // collision. on this planei
 					 {
-						  *b = olist[i]->pos[x][y]; // set to max - you shal not pass!
-						  Log("Collision with olist[%d]!\n", i);
+						  (*b)++;
+						  Log("Collision with olist[%d] on z-axis!\n", i);
 						  return i;
 					 }
 					 y++;
@@ -187,24 +145,71 @@ int ny (int * b)
 	 return 0;
 }
 
-int nz (int * b)
+
+int px (int * b)
 {
-	 int i = 0, x = 0, y = 0, z = 0;
+	 int i = 0, y = 0, z = 0;
 	 while (i < objcnt) // check all objects
 	 {
-		  while (x < imgres) // check entire axis of object
+		  while (y < imgres)
+		  {
+				while (z < imgres)
+				{
+					 if (olist[i]->img[*b][y][z] == 1) // collision. on this planei
+					 {
+						  (*b)--; // since in positive direction, decrement
+						  Log("Collision with olist[%d] on x-axis!\n", i);
+						  return i;
+					 }
+					 z++;
+				}
+				y++;
+		  }
+		  i++;
+	 }
+	 return 0;
+}
+
+int py (int * b)
+{
+	 int i = 0, x = 0, z = 0;
+	 while (i < objcnt) // check all objects
+	 {
+		  while (x < imgres)
+		  {
+				while (z < imgres)
+				{
+					 if (olist[i]->img[x][*b][z] == 1) // collision. on this planei
+					 {
+						  (*b)--; // since in positive direction, decrement
+						  Log("Collision with olist[%d] on y-axis!\n", i);
+						  return i;
+					 }
+					 z++;
+				}
+				x++;
+		  }
+		  i++;
+	 }
+	 return 0;
+}
+
+// check b on xy-plane. if any b on xy == 1, collision, else, no collision.
+// maybe add in limits on xy to be within size of object and witihn size of person
+int pz (int * b)
+{
+	 int i = 0, x = 0, y = 0;
+	 while (i < objcnt) // check all objects
+	 {
+		  while (x < imgres)
 		  {
 				while (y < imgres)
 				{
-					 while (z < imgres)
+					 if (olist[i]->img[x][y][*b] == 1) // collision. on this planei
 					 {
-						  if (*b <= olist[i]->pos[x][y][z]) // references are proper?? collision. I THINK WE NEED A *** (XYZ) for pos within obj.h
-						  {
-								*b = olist[i]->pos[x][y][z]; // set to max - you shal not pass!
-								Log("Collision with olist[%d]!\n", i);
-								return i;
-						  }
-						  z++;
+						  (*b)--; // since in positive direction, decrement
+						  Log("Collision with olist[%d] on z-axis!\n", i);
+						  return i;
 					 }
 					 y++;
 				}

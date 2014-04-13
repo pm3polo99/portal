@@ -2,8 +2,11 @@
 
 void cleanupXWindows(void)
 {
+	 Log("calling XDestroyWindow\n");
 	 XDestroyWindow(dpy, win);
+	 Log("calling XCloseDisplay\n");
 	 XCloseDisplay(dpy);
+	 Log("done with cleanupXWindows\n");
 }
 
 void setup_screen_res(const int w, const int h)

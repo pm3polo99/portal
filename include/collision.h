@@ -1,13 +1,11 @@
 #pragma once
+#include "objects.h"
+#include "const.h"
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <time.h>
-
-#include "obj.h"
-#include "const.h"
-#include "shapes.h"
 
 
 #ifndef _COLLISION_H

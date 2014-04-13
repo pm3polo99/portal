@@ -37,16 +37,12 @@
 #include "fonts.h"
 #include "timing.h"
 #include "xwin.h"
-#include "shapes.h"
-
-#ifndef _CONST_H
-#define _CONST_H
 #include "const.h"
-#endif
+#include "objects.h"
 
 // defined types
 typedef double Flt;
-typedef double Vec[3];
+//typedef double Vec[3]; // defined in objects.h
 typedef Flt	Matrix[4][4];
 
 // X Windows variables
@@ -85,15 +81,20 @@ int collision(struct portal *p);
 
 //global variables
 int done=0;
+int objcnt = 0;
+int portalcnt = 0;
+int keys[65536];
 
 // shapes
 // instead of individual shapes, make a list of shapes
 // to do a list of shapes (general), need to move to c++, no issue i think, try for pure c
 // maybe struct obj with structs for every obj and integers for count of each object type, one int for count of total objects
+Display *dpy;
+Window win;
+GLXContext glc;
 
-
-static float pos[3]={20.0,200.0,0.0};
-static float vel[3]={5.0,0.0,0.0};
+static float pos[3]={200.0,200.0,0.0};
+static float vel[3]={0.0,0.0,0.0};
 
 int main(void)
 {
@@ -140,8 +141,10 @@ int main(void)
 		  render();
 		  glXSwapBuffers(dpy, win);
 	 }
+	 Log("in main, about to call cleanupXWindows\n");
 	 cleanupXWindows();
-	 cleanup_fonts();
+	 //	 cleanup_fonts();
+	 Log("in main, about to call cleanupObjects\n");
 	 cleanupObjects();
 	 logClose();
 	 return 0;
@@ -149,12 +152,21 @@ int main(void)
 
 void cleanupObjects()
 {
-	 int i = objcnt;
-	 while (i > 0)
-	 {
-		  destroyObj(--i);
-	 }
-	 p1 = destroyPortal(p1);
+	 Log("start of cleanupObjects\n");
+	 /*
+		 int i = objcnt;
+		 while (i > 0)
+		 {
+		 Log("objcnt = %d\n", i);
+		 destroyObj(--i);
+		 }
+		 i = portalcnt;
+		 while (i > 0)
+		 {
+		 Log("portalcnt = %d\n", i);
+		 destroyPortal(--i);
+		 }
+		 */
 	 return;
 }
 
@@ -189,7 +201,7 @@ void init_opengl(void)
 	 //glClear(GL_COLOR_BUFFER_BIT);
 	 //Do this to allow fonts
 	 glEnable(GL_TEXTURE_2D);
-	 initialize_fonts();
+	 //	 initialize_fonts();
 }
 
 void check_resize(XEvent *e)
@@ -208,10 +220,7 @@ void check_resize(XEvent *e)
 
 void init()
 {
-	 p1 = 000;
-	 initObj();
-	 p1 = initPortal();
-	 drawOval(p1->pos);
+	 memset(keys, 0, 65536);
 	 Log("end of init\n");
 }
 
@@ -245,74 +254,83 @@ void check_keys(XEvent *e)
 	 //keyboard input?
 	 static int shift=0;
 	 int key = XLookupKeysym(&e->xkey, 0);
-	 if (e->type == KeyRelease) {
+	 //Log("key: %i\n", key);
+	 if (e->type == KeyRelease)
+	 {
+		  keys[key]=0;
 		  if (key == XK_Shift_L || key == XK_Shift_R)
 				shift=0;
 		  return;
 	 }
-	 if (e->type == KeyPress) {
+	 if (e->type == KeyPress)
+	 {
+		  if (key == XK_Escape)
+		  {
+				done = 1;
+				return;
+		  }
+		  keys[key]=1;
 		  if (key == XK_Shift_L || key == XK_Shift_R) {
 				shift=1;
 				return;
 		  }
-	 } else {
+	 }
+	 else
+	 {
 		  return;
 	 }
 	 if (shift){}
+	 /*
 	 //The Escape key exits the program.
 	 //Other keys could have some functionality.
 	 switch(key) {
-		  case XK_w:
-				printf("W\n");
-				break;
-		  case XK_a:
-				printf("A\n");
-				break;
-		  case XK_s:
-				printf("S\n");
-				break;
-		  case XK_d:
-				printf("D\n");
-				break;
-		  case XK_q:
-				printf("Q\n");
-				break;
-		  case XK_e:
-				printf("E\n");
-				break;
-		  case XK_f:
-				printf("F\n");
-				break;
-		  case XK_Left:
-				//if (!collide(&(const int)(pos[0] - 10), &(const int)pos[1], &(const int)pos[2])) // if where i'm trying to go causes a collision, dont go into the light. pass x, y, z coords.
-				pos[0] -= 10;
-				break;
-		  case XK_Right:
-				// on key press, check collision, then move
-				pos[0] += 10;
-				break;
-		  case XK_Up:
-				pos[1] += 10;
-				break;
-		  case XK_Down:
-				pos[1] -= 10;
-				break;
-		  case XK_space:
-				pos[1] += 150;
-				break;
-		  case XK_equal:
-				break;
-		  case XK_minus:
-				break;
-		  case XK_Escape:
-				done=1;
-				break;
+	 case XK_w:
+	 printf("W\n");
+	 break;
+	 case XK_a:
+	 printf("A\n");
+	 break;
+	 case XK_s:
+	 printf("S\n");
+	 break;
+	 case XK_d:
+	 printf("D\n");
+	 break;
+	 case XK_q:
+	 printf("Q\n");
+	 break;
+	 case XK_e:
+	 printf("E\n");
+	 break;
+	 case XK_f:
+	 printf("F\n");
+	 break;
+	 case XK_Left:
+	 //if (!collide(&(const int)(pos[0] - 10), &(const int)pos[1], &(const int)pos[2])) // if where i'm trying to go causes a collision, dont go into the light. pass x, y, z coords.
+	 break;
+	 case XK_Right:
+	 // on key press, check collision, then move
+	 break;
+	 case XK_Up:
+	 break;
+	 case XK_Down:
+	 break;
+	 case XK_space:
+	 break;
+	 case XK_equal:
+	 break;
+	 case XK_minus:
+	 break;
+	 case XK_Escape:
+	 done=1;
+	 break;
 	 }
+	 */
 }
 
 void physics(void)
 {
-	 int addgrav = 1;
+	 int addgrav = 0;
 	 //Update position of object using its velocity
 	 /* DEBUG */
 	 /*
@@ -321,57 +339,135 @@ void physics(void)
 		 */
 	 /* DEBUG */
 	 // move
-	 /*
-		 pos[0] += vel[0];
-		 pos[1] += vel[1];
-		 */
+	 pos[0] += vel[0];
+	 pos[1] += vel[1];
 	 //Now, update the velocity...
 	 //Check for collision with window edges
 	 // *** i added a small buffer so were not exactly on the edge of the thing
 	 // for loop, go through a list of objects, check for collision
 	 //
 
-	 if (pos[0]-38.0 >= (float)xres) // right edge
+	 if (keys[LEFT_PORTAL_KEY])
 	 {
-		  pos[0] = 2.0+38.0; // wrap
+		  /* create a portal */
 	 }
-	 if (pos[0]+38.0 <= 0.0) // on left edge
+	 if (keys[RIGHT_PORTAL_KEY])
 	 {
-		  pos[0] = (float)xres - 38.0 - 2;
-		  //gravity not important now
+		  /* create a portal */
+	 }
+	 if (keys[XK_d])
+	 {
+		  if (pos[0] + 5 - 38.0 >= (float)xres) // right edge
+		  {
+				//		  pos[0] = 2.0+38.0; // wrap
+
+				// do nothing
+		  }
+		  else
+		  {
+				pos[0] += 15;
+		  }
+		  if (vel[1] > 0.0)
+				addgrav = 1;
+	 }
+	 if (keys[XK_a])
+	 {
+		  if (pos[0] - 5 + 38.0 <= 0.0) // on left edge
+		  {
+				//		  pos[0] = (float)xres - 38.0 - 2;
+				//gravity not important now
+				//do nothing
+		  }
+		  else
+		  {
+				pos[0] -= 15;
+		  }
+		  if (vel[1] > 0.0)
+				addgrav = 1;
 	 }
 
-	 if (pos[1]+38.0 < 0.0) // bottom
+	 if (keys[XK_s])
 	 {
-		  pos[1] = (float)yres - 38.0 - 2;
+		  if (pos[1] - vel[1] + 38.0 < 0.0) // bottom
+		  {
+				vel[1] = 0.0; // ???
+				//		  pos[1] = (float)yres - 38.0 - 2;
+				//		  do nothing
+		  }
 	 }
-	 if (pos[1]-38.0 >= (float)yres) // top
+
+	 if (keys[XK_w])
 	 {
-		  pos[1] = 0.0 + 38.0 + 2;
+		  if (pos[1] - vel[1] - 38.0 >= (float)yres) // top
+		  {
+				vel[1] = 0.0; // ???
+				//		  pos[1] = (float)yres - 38.0 - 2;
+				//		  do nothing
+		  }
 	 }
+
+	 if (keys[XK_space])
+	 {
+		  if (pos[1] + 10 - 38.0 >= (float)yres) // top
+		  {
+				//		  pos[1] = 0.0 + 38.0 + 2;
+				//		  do nothing
+				if (vel[1] > 0.0)
+					 addgrav = 1;
+		  }
+		  else
+		  {
+				vel[1] = 10;
+				pos[1] += vel[1];
+				if (vel[1] > 0.0)
+					 addgrav = 1;
+		  }
+	 }
+	 if (pos[1] - 38.0 + 2 > 0)
+		  addgrav = 1;
+	 if (pos[1] - 38.0 + 2 < 0)
+		  pos[1] = 36.0;
 	 //Apply gravity
 	 if (addgrav)
-		  vel[1] -= 0.5;
+		  vel[1] -= 2.5;
 }
 
 void putOval(void)
 {
 	 glClear (GL_COLOR_BUFFER_BIT);
 	 glColor3ub (0, 0, 0);
-	 float z = 0.0;
 	 glPushMatrix();
-	 glTranslatef((xres/2)-portalList, 0.0, z);
+	 //	 glTranslatef(plist[(plast+1)%2]->pos[0], plist[(plast+1)%2]->pos[1], plist[(plast+1)%2]->pos[2]);
 	 glBegin(GL_TRIANGLE_FAN);
 	 /* actually starting at mid right??
 	  * x = sin(t), y = cos(t)
 	  */
-	 int i = 0;
-	 do
-	 {
-		  glVertex3f(p1->pos[i][0], p1->pos[i][1], z);
-		  i++;
-	 }
-	 while (i < 1000);
+	 /* HERE
+		 int i = 0, j = 0, k = 0;
+		 do
+		 {
+		 while (i < imgres)
+		 {
+		 j = 0;
+		 while (j < imgres)
+		 {
+		 k = 0;
+		 while (k < imgres)
+		 {
+		 if (plist[(plast+1)%2]->img[i][j][k][0] == 1)
+		 {
+		 glVertex3f(i, j, k);
+		 }
+		 k++;
+		 }
+		 j++;
+		 }
+		 i++;
+		 }
+		 i++;
+		 }
+		 while (i < imgres);
+		 */
 
 	 glEnd();
 	 glPopMatrix();
@@ -404,8 +500,8 @@ void render(void)
 	 r.bot = yres - 20;
 	 r.left = 10;
 	 r.center = 0;
-	 ggprint8b(&r, 16, 0, heading);
-	 putOval();
+	 //	 ggprint8b(&r, 16, 0, heading);
+	 //putOval();
 	 //Draw a simple square
 	 {
 		  float wid = 40.0f;

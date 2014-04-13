@@ -1,12 +1,8 @@
 start of main
-start of initObj
-end of initObj
-start of initPortal
-end of initPortal
-start drawOval
-end drawOval
 end of init
-start of destroyObj
-end of destroyObj
-start of destroyPortal
-end of destroyPortal
+in main, about to call cleanupXWindows
+calling XDestroyWindow
+calling XCloseDisplay
+done with cleanupXWindows
+in main, about to call cleanupObjects
+start of cleanupObjects
