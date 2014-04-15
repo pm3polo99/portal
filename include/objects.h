@@ -48,11 +48,14 @@ class object
 		  vec_list * head;
 		  Vec n;
 
+		  void setN(void);
+
 	 public:
 		  object (const object&);
 		  object (const Vec p = zero_vec, const int able = 0, vec_list * vl = 0);
 		  ~object();
 		  vec_list * initNode(void);
+		  float * getN(void);
 		  float * getPos (void);
 		  void getPos (Vec &);
 		  int isPortalable (void);

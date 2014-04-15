@@ -507,13 +507,13 @@ void putWall(void)
 
 void render(void)
 {
-	 const char heading[] = "animation";
-	 Rect r;
+	 //	 const char heading[] = "animation";
+	 //	 Rect r;
 
 	 glClear(GL_COLOR_BUFFER_BIT);
-	 r.bot = yres - 20;
-	 r.left = 10;
-	 r.center = 0;
+	 //	 r.bot = yres - 20;
+	 //	 r.left = 10;
+	 //	 r.center = 0;
 	 //	 ggprint8b(&r, 16, 0, heading);
 	 putOval();
 	 //Draw a simple square

@@ -8,8 +8,12 @@ object::object (const object& r)
 	 pos[1] = r.pos[1];
 	 pos[2] = r.pos[2];
 	 portable = r.portable;
+	 n[0] = r.n[0];
+	 n[1] = r.n[1];
+	 n[2] = r.n[2];
 	 head = r.head;
 }
+
 object::object (const Vec p, const int able, vec_list * vl) // acts as default constructor
 {
 	 pos[0] = p[0];
@@ -24,13 +28,21 @@ object::object (const Vec p, const int able, vec_list * vl) // acts as default c
 	 {
 		  head = vl;
 	 }
+	 /* facing left */
+	 n[0] = -1.0;
+	 n[1] = 0.0;
+	 n[2] = 0.0;
 }
+
 object::~object()
 {
 	 pos[0] = empty_vec[0];
 	 pos[1] = empty_vec[1];
 	 pos[2] = empty_vec[2];
 	 portable = 0;
+	 n[0] = -1.0;
+	 n[1] = 0.0;
+	 n[2] = 0.0;
 	 head = initNode();
 }
 
@@ -44,29 +56,47 @@ vec_list * object::initNode(void)
 	 return a;
 }
 
+/* following takes FIRST TWO VECTORS and calculates the normal vector based off of them */
+void object::setN(void)
+{
+	 n[0] = (head->next->v[0] - head->v[0]);
+	 n[1] = (head->next->v[1] - head->v[1]);
+	 n[2] = (head->next->v[2] - head->v[2]);
+}
+
 // accessors
 float * object::getPos (void)
 {
 	 return pos;
 }
+
+float * object::getN(void)
+{
+	 return n;
+}
+
 void object::getPos (Vec &p)
 {
 	 p[0] = pos[0];
 	 p[1] = pos[1];
 	 p[2] = pos[2];
 }
+
 int object::isPortalable (void)
 {
 	 return portable;
 }
+
 int object::getPortable (void)
 {
 	 return portable;
 }
+
 vec_list * object::getHead (void)
 {
 	 return head;
 }
+
 void object::getVert (Vec &p, int i = 0)
 {
 	 if (i == 0)
@@ -93,6 +123,7 @@ void object::getVert (Vec &p, int i = 0)
 	 p[1] = t->v[1];
 	 p[2] = t->v[2];
 }
+
 float * object::getVert (int i = 0)
 {
 	 if (i == 0)
@@ -107,6 +138,7 @@ float * object::getVert (int i = 0)
 	 }
 	 return t->v;
 }
+
 vec_list * object::getLastVert (void)
 {
 	 vec_list *t = head;
@@ -445,21 +477,21 @@ object & object::operator = (const object &r)
 	 portable = r.portable;
 	 /* need to create entire new list of vectors? or not??
 	  *
-	 try
-	 {
-		  head = new vec_list;
-	 }
-	 catch (bad_alloc)
-	 {
-		  cout << "Insufficient memory! Aborting\n";
-		  exit(1);
-	 }
-	 catch (...)
-	 {
-		  cout << "An unknown error occured! Aborting\n";
-		  exit(2);
-	 }
-	 */
+	  try
+	  {
+	  head = new vec_list;
+	  }
+	  catch (bad_alloc)
+	  {
+	  cout << "Insufficient memory! Aborting\n";
+	  exit(1);
+	  }
+	  catch (...)
+	  {
+	  cout << "An unknown error occured! Aborting\n";
+	  exit(2);
+	  }
+	  */
 	 head = r.head;
 
 	 return (*this);
