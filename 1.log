@@ -6,3 +6,4 @@ calling XCloseDisplay
 done with cleanupXWindows
 in main, about to call cleanupObjects
 start of cleanupObjects
+end of cleanupObjects

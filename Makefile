@@ -20,8 +20,8 @@ timing: $(LOCINC)/timing.c
 xwin: $(LOCINC)/xwin.c
 	g++ $(LOCINC)/xwin.c $(CFLAGS) $(EFLAGS) $(LFLAGS) -c -o $(LIB)/xwin.o
 
-lab1: lab1.c $(LIB)/log.o $(LIB)/xwin.o $(LIB)/timing.o $(LIB)/objects.o $(LIBFNT)
-	g++ $(LIB)/*.o lab1.c $(LIBFNT) $(CFLAGS) $(EFLAGS) $(LFLAGS)
+lab1: lab1.cpp $(LIB)/log.o $(LIB)/xwin.o $(LIB)/timing.o $(LIB)/objects.o $(LIBFNT)
+	g++ $(LIB)/*.o lab1.cpp $(LIBFNT) $(CFLAGS) $(EFLAGS) $(LFLAGS)
 
 clean:
 	rm -f a.out *.o *.gch core *.log $(LIB)/*.o $(LOCINC)/*.o $(LOCINC)/*.gch

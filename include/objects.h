@@ -30,6 +30,10 @@ typedef float Vec[3];
 static const Vec zero_vec = {0.0, 0.0, 0.0};
 static const Vec empty_vec = {-1.0, -1.0, -1.0};
 
+static float pWidth = 100;
+static float pHeight = 150;
+static float pDepth = 1;
+
 typedef struct _vec_list
 {
 	 Vec v;
@@ -42,6 +46,7 @@ class object
 		  Vec pos;
 		  int portable;
 		  vec_list * head;
+		  Vec n;
 
 	 public:
 		  object (const object&);
@@ -83,7 +88,7 @@ class portal : public object
 	 protected:
 		  int is_placed;
 
-		  void drawPortal (void);
+		  void drawPortal (void); // a rectangle idiot
 
 	 public:
 		  portal();

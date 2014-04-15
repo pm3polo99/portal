@@ -36,12 +36,12 @@ object::~object()
 
 vec_list * object::initNode(void)
 {
-	 vec_list * n = (vec_list *)malloc(1*sizeof(vec_list));
-	 n->v[0] = empty_vec[0];
-	 n->v[1] = empty_vec[1];
-	 n->v[2] = empty_vec[2];
-	 n->next = 0;
-	 return n;
+	 vec_list * a = (vec_list *)malloc(1*sizeof(vec_list));
+	 a->v[0] = empty_vec[0];
+	 a->v[1] = empty_vec[1];
+	 a->v[2] = empty_vec[2];
+	 a->next = 0;
+	 return a;
 }
 
 // accessors
@@ -282,13 +282,13 @@ void object::addVert (const Vec p)
 		  head->v[2] = p[2];
 		  return;
 	 }
-	 vec_list * n = (vec_list *)malloc(1*sizeof(vec_list));
-	 n->v[0] = p[0];
-	 n->v[1] = p[1];
-	 n->v[2] = p[2];
+	 vec_list * a = (vec_list *)malloc(1*sizeof(vec_list));
+	 a->v[0] = p[0];
+	 a->v[1] = p[1];
+	 a->v[2] = p[2];
 	 //				n->next = head; // head insertion
-	 getLastVert()->next = n; // tail insertion
-	 n->next = 0;
+	 getLastVert()->next = a; // tail insertion
+	 a->next = 0;
 	 return;
 }
 
@@ -303,13 +303,13 @@ void object::addVec (const Vec p)
 		  head->v[2] = p[2];
 		  return;
 	 }
-	 vec_list * n = (vec_list *)malloc(1*sizeof(vec_list));
-	 n->v[0] = p[0];
-	 n->v[1] = p[1];
-	 n->v[2] = p[2];
+	 vec_list * a = (vec_list *)malloc(1*sizeof(vec_list));
+	 a->v[0] = p[0];
+	 a->v[1] = p[1];
+	 a->v[2] = p[2];
 	 //				n->next = head; // head insertion
-	 getLastVert()->next = n; // tail insertion
-	 n->next = 0;
+	 getLastVert()->next = a; // tail insertion
+	 a->next = 0;
 	 return;
 }
 
@@ -322,13 +322,13 @@ void object::addVert (const int p[3])
 		  head->v[2] = p[2];
 		  return;
 	 }
-	 vec_list * n = (vec_list *)malloc(1*sizeof(vec_list));
-	 n->v[0] = p[0];
-	 n->v[1] = p[1];
-	 n->v[2] = p[2];
-	 //				n->next = head; // head insertion
-	 getLastVert()->next = n; // tail insertion
-	 n->next = 0;
+	 vec_list * a = (vec_list *)malloc(1*sizeof(vec_list));
+	 a->v[0] = p[0];
+	 a->v[1] = p[1];
+	 a->v[2] = p[2];
+	 //				a->next = head; // head insertion
+	 getLastVert()->next = a; // tail insertion
+	 a->next = 0;
 	 return;
 }
 
@@ -341,13 +341,13 @@ void object::addVec (const int p[3])
 		  head->v[2] = p[2];
 		  return;
 	 }
-	 vec_list * n = (vec_list *)malloc(1*sizeof(vec_list));
-	 n->v[0] = p[0];
-	 n->v[1] = p[1];
-	 n->v[2] = p[2];
+	 vec_list * a = (vec_list *)malloc(1*sizeof(vec_list));
+	 a->v[0] = p[0];
+	 a->v[1] = p[1];
+	 a->v[2] = p[2];
 	 //				n->next = head; // head insertion
-	 getLastVert()->next = n; // tail insertion
-	 n->next = 0;
+	 getLastVert()->next = a; // tail insertion
+	 a->next = 0;
 	 return;
 }
 
@@ -360,13 +360,13 @@ void object::addVert (const int &x = 0, const int &y = 0, const int &z = 0)
 		  head->v[2] = z;
 		  return;
 	 }
-	 vec_list * n = (vec_list *)malloc(1*sizeof(vec_list));
-	 n->v[0] = x;
-	 n->v[1] = y;
-	 n->v[2] = z;
+	 vec_list * a = (vec_list *)malloc(1*sizeof(vec_list));
+	 a->v[0] = x;
+	 a->v[1] = y;
+	 a->v[2] = z;
 	 //				n->next = head; // head insertion
-	 getLastVert()->next = n; // tail insertion
-	 n->next = 0;
+	 getLastVert()->next = a; // tail insertion
+	 a->next = 0;
 	 return;
 }
 
@@ -379,13 +379,13 @@ void object::addVec (const int &x = 0, const int &y = 0, const int &z = 0)
 		  head->v[2] = z;
 		  return;
 	 }
-	 vec_list * n = (vec_list *)malloc(1*sizeof(vec_list));
-	 n->v[0] = x;
-	 n->v[1] = y;
-	 n->v[2] = z;
+	 vec_list * a = (vec_list *)malloc(1*sizeof(vec_list));
+	 a->v[0] = x;
+	 a->v[1] = y;
+	 a->v[2] = z;
 	 //				n->next = head; // head insertion
-	 getLastVert()->next = n; // tail insertion
-	 n->next = 0;
+	 getLastVert()->next = a; // tail insertion
+	 a->next = 0;
 	 return;
 }
 
@@ -546,6 +546,7 @@ void portal::drawPortal(void)
 		  t += (pi / portalres);
 		  x = (cos(t) + 1) * pWidth;
 		  y = (sin(t) + 1) * pHeight;
+		  z = (0 + 1) * pDepth;
 		  addVec((int)x, (int)y, (int)z);
 	 }
 }
@@ -607,9 +608,9 @@ portal_list::portal_list(const portal_list &p) : portal(p)
 	 portal_count = p.portal_count;
 }
 
-portal_list::portal_list(const portal &a, const portal &b, const int &n = 0)
+portal_list::portal_list(const portal &a, const portal &b, const int &c = 0)
 {
-	 plast = n;
+	 plast = c;
 	 portal_count = 2;
 	 if (&a == 0)
 		  portal_count--;
@@ -640,15 +641,15 @@ portal_list::~portal_list()
 	 portal_count = 0;
 }
 
-portal * portal_list::getPortal(const int &n = -1)
+portal * portal_list::getPortal(const int &c = -1)
 {
 	 if (plist == 0)
 		  return 0;
-	 if (n != LEFT && n != RIGHT)
+	 if (c != LEFT && c != RIGHT)
 	 {
 		  return &(plist[plast]);
 	 }
-	 return (&(plist[n]));
+	 return (&(plist[c]));
 }
 
 int portal_list::getPlast(void)
@@ -705,15 +706,15 @@ void portal_list::setPortalCount(const int &a = -1)
 	 portal_count = a;
 }
 
-void portal_list::destroyPortal(const int &n = -1)
+void portal_list::destroyPortal(const int &c = -1)
 {
-	 if (n != LEFT && n != RIGHT)
+	 if (c != LEFT && c != RIGHT)
 	 {
 		  plist[plast].~portal(); // ??
 	 }
 	 else
 	 {
-		  plist[n].~portal();
+		  plist[c].~portal();
 	 }
 	 portal_count--;
 	 TOGGLE(plast);
