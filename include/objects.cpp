@@ -165,6 +165,8 @@ string object::toString(void)
 		  oss << "\t(" << t->v[0] << ", " << t->v[1] << ", " << t->v[2] << ")\n";
 		  t = t->next;
 	 }
+	 oss << "Normal vector:\n";
+	 oss << "\t<" << n[0] << ", " << n[1] << ", " << n[2] << ">";
 	 oss << endl;
 	 return oss.str();
 }
@@ -179,6 +181,8 @@ string object::dumpCsv(void)
 		  oss << t->v[0] << "," << t->v[1] << "," << t->v[2] << ",";
 		  t = t->next;
 	 }
+	 oss << n[0] << "," << n[1] << "," << n[2];
+	 oss << endl;
 	 return oss.str();
 }
 
@@ -595,6 +599,7 @@ bool operator == (const portal &l, const portal &r)
 	 return (l.pos == r.pos);
 }
 
+/*
 portal_list::portal_list()
 {
 	 try
@@ -771,3 +776,4 @@ portal_list & portal_list::operator = (const portal_list &r)
 	 portal_count = r.portal_count;
 	 return (*this);
 }
+*/

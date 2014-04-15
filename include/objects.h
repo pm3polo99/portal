@@ -112,6 +112,7 @@ class portal : public object
 		  friend bool operator == (const portal&, const portal&);
 };
 
+/*
 class portal_list : public portal
 {
 	 protected:
@@ -138,3 +139,4 @@ class portal_list : public portal
 		  void makePortal (void);
 		  portal_list& operator = (const portal_list&);
 };
+*/

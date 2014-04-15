@@ -84,10 +84,11 @@ void initObjects(void);
 //global variables
 int done=0;
 int objcnt = 0;
-object **objects;
 int keys[65536];
-portal_list portals;
+
+object **objects;
 portal * pLeft;
+portal * pRight;
 
 // shapes
 // instead of individual shapes, make a list of shapes
@@ -151,7 +152,6 @@ int main(void)
 	 Log("in main, about to call cleanupObjects\n");
 	 cleanupObjects();
 	 logClose();
-	 printf("log closed, exiting\n");
 	 return 0;
 }
 
@@ -236,8 +236,6 @@ void init()
 
 void initObjects(void)
 {
-	 portals.getPortal(LEFT)->setPos(xres/2, yres/2, 1);
-	 portals.getPortal(RIGHT)->setPos(xres/2, yres/2, 1);
 	 try
 	 {
 		  objects = new object * [maxobj];
@@ -448,7 +446,6 @@ void putOval(void)
 		  v[0] = pLeft->getVert(i)[0];
 		  v[1] = pLeft->getVert(i)[1];
 		  v[2] = pLeft->getVert(i)[2];
-		  printf("%f, %f, %f\n", v[0], v[1], v[2]);
 		  glVertex3f(v[0], v[1], v[2]);
 		  //		  glVertex3f(pLeft->getVert(i)[0], pLeft->getVert(i)[1], pLeft->getVert(i)[2]);
 		  i++;
