@@ -83,12 +83,12 @@ void initObjects(void);
 
 //global variables
 int done=0;
-int objcnt = 0;
 int keys[65536];
 
+int objcnt = 0;
+
 object **objects;
-portal * pLeft;
-portal * pRight;
+portal ** portals;
 
 // shapes
 // instead of individual shapes, make a list of shapes
@@ -144,7 +144,6 @@ int main(void)
 		  }
 		  //Always render every frame.
 		  render();
-		  glXSwapBuffers(dpy, win);
 	 }
 	 Log("in main, about to call cleanupXWindows\n");
 	 cleanupXWindows();
@@ -158,21 +157,8 @@ int main(void)
 void cleanupObjects()
 {
 	 Log("start of cleanupObjects\n");
-	 delete pLeft;
-	 /*
-		 int i = objcnt;
-		 while (i > 0)
-		 {
-		 Log("objcnt = %d\n", i);
-		 destroyObj(--i);
-		 }
-		 i = portalcnt;
-		 while (i > 0)
-		 {
-		 Log("portalcnt = %d\n", i);
-		 destroyPortal(--i);
-		 }
-		 */
+	 delete portals;
+	 delete objects;
 	 Log("end of cleanupObjects\n");
 }
 
@@ -225,10 +211,14 @@ void check_resize(XEvent *e)
 
 void init()
 {
+	 Log("start of init()\n");
 	 initObjects();
 
-	 pLeft = new portal();
-	 pLeft->setPos(xres/3, yres/3, 0);
+	 portals = new portal*[2];
+	 portals[LEFT] = new portal();
+	 portals[RIGHT] = new portal();
+	 portals[LEFT]->setPos(xres/3, yres/3, 0);
+	 portals[RIGHT]->setPos(xres/3, yres/3, 0);
 
 	 memset(keys, 0, 65536);
 	 Log("end of init\n");
@@ -236,13 +226,10 @@ void init()
 
 void initObjects(void)
 {
+	 Log("Start of initObjects()\n");
 	 try
 	 {
 		  objects = new object * [maxobj];
-		  objects[0] = new object(); // floor
-		  objects[1] = new object(); // left wall
-		  objects[2] = new object(); // right wall
-		  objects[3] = new object(); // ceiling
 	 }
 	 catch (bad_alloc)
 	 {
@@ -254,6 +241,51 @@ void initObjects(void)
 		  printf("An unknown error occured! Exiting\n");
 		  exit(2);
 	 }
+	 try
+	 {
+		  objects[0] = new object(); // floor
+		  objects[1] = new object(); // left wall
+		  objects[2] = new object(); // right wall
+		  objects[3] = new object(); // ceiling
+		  objects[4] = new object(); // person
+	 }
+	 catch (bad_alloc)
+	 {
+		  printf("Insufficient memory! Aborting\n");
+		  exit(1);
+	 }
+	 catch (...)
+	 {
+		  printf("An unknown error occured! Exiting\n");
+		  exit(2);
+	 }
+	 Log("about to add verticies to objects\n");
+	 objects[0]->addVec(1,1,1);
+	 objects[0]->addVec(1,51,1);
+	 objects[0]->addVec(xres-1,51,1);
+	 objects[0]->addVec(xres-1,1,1);
+
+	 objects[1]->addVec(1, 2, 1);
+	 objects[1]->addVec(1, yres-2, 1);
+	 objects[1]->addVec(51, yres-2, 1);
+	 objects[1]->addVec(51, 2, 1);
+
+	 objects[2]->addVec(xres-51, 2, 1);
+	 objects[2]->addVec(xres-51, yres-2, 1);
+	 objects[2]->addVec(xres-1, yres-2, 1);
+	 objects[2]->addVec(xres-1, 2, 1);
+
+	 objects[3]->addVec(1,yres-51,1);
+	 objects[3]->addVec(1,yres-1,1);
+	 objects[3]->addVec(xres-1,yres-1,1);
+	 objects[3]->addVec(xres-1,yres-51,1);
+
+	 objects[4]->addVec(10, 10, 1);
+	 objects[4]->addVec(10, 100, 1);
+	 objects[4]->addVec(60, 100, 1);
+	 objects[4]->addVec(60, 10, 1);
+
+	 Log("Done with initObjects\n");
 }
 
 void check_mouse(XEvent *e)
@@ -432,101 +464,148 @@ void physics(void)
 		  vel[1] -= 2.5;
 }
 
-void putOval(void)
+/*
+	void putOval(void)
+	{
+	Vec v;
+	int i = 0;
+	glClear (GL_COLOR_BUFFER_BIT);
+	glColor3ub (0, 0, 0);
+	glPushMatrix();
+//	 glTranslatef(plist[(plast+1)%2]->pos[0], plist[(plast+1)%2]->pos[1], plist[(plast+1)%2]->pos[2]);
+glBegin(GL_TRIANGLE_FAN);
+while (i < portalres)
 {
-	 Vec v;
-	 int i = 0;
-	 glClear (GL_COLOR_BUFFER_BIT);
-	 glColor3ub (0, 0, 0);
-	 glPushMatrix();
-	 //	 glTranslatef(plist[(plast+1)%2]->pos[0], plist[(plast+1)%2]->pos[1], plist[(plast+1)%2]->pos[2]);
-	 glBegin(GL_TRIANGLE_FAN);
-	 while (i < portalres)
-	 {
-		  v[0] = pLeft->getVert(i)[0];
-		  v[1] = pLeft->getVert(i)[1];
-		  v[2] = pLeft->getVert(i)[2];
-		  glVertex3f(v[0], v[1], v[2]);
-		  //		  glVertex3f(pLeft->getVert(i)[0], pLeft->getVert(i)[1], pLeft->getVert(i)[2]);
-		  i++;
-	 }
-	 /* actually starting at mid right??
-	  * x = sin(t), y = cos(t)
-	  */
-	 /* HERE
-		 int i = 0, j = 0, k = 0;
-		 do
-		 {
-		 while (i < imgres)
-		 {
-		 j = 0;
-		 while (j < imgres)
-		 {
-		 k = 0;
-		 while (k < imgres)
-		 {
-		 if (plist[(plast+1)%2]->img[i][j][k][0] == 1)
-		 {
-		 glVertex3f(i, j, k);
-		 }
-		 k++;
-		 }
-		 j++;
-		 }
-		 i++;
-		 }
-		 i++;
-		 }
-		 while (i < imgres);
-		 */
-
-	 glEnd();
-	 glPopMatrix();
+v[0] = pLeft->getVert(i)[0];
+v[1] = pLeft->getVert(i)[1];
+v[2] = pLeft->getVert(i)[2];
+glVertex3f(v[0], v[1], v[2]);
+//		  glVertex3f(pLeft->getVert(i)[0], pLeft->getVert(i)[1], pLeft->getVert(i)[2]);
+i++;
 }
+*/
+/* actually starting at mid right??
+ * x = sin(t), y = cos(t)
+ */
+/* HERE
+	int i = 0, j = 0, k = 0;
+	do
+	{
+	while (i < imgres)
+	{
+	j = 0;
+	while (j < imgres)
+	{
+	k = 0;
+	while (k < imgres)
+	{
+	if (plist[(plast+1)%2]->img[i][j][k][0] == 1)
+	{
+	glVertex3f(i, j, k);
+	}
+	k++;
+	}
+	j++;
+	}
+	i++;
+	}
+	i++;
+	}
+	while (i < imgres);
+	*/
+/* HERE
 
-void putWall(void)
+	glEnd();
+	glPopMatrix();
+	}
+	*/
+
+void putObj(int &i)
 {
-	 glClear (GL_COLOR_BUFFER_BIT);
-	 glColor3ub (0, 0, 0);
-	 float left = (float)xres/3.0;
-	 float right = 2*(float)xres/3.0;
-	 float top = (float)yres/1.3;
-	 float bot = 0.0;
-	 float z = 0.0;
+	 int j = 0;
+	 glColor3ub (100, 25, 55);
 	 glBegin(GL_POLYGON);
-	 glVertex3f (left, bot, z);
-	 glVertex3f (right, bot, z);
-	 glVertex3f (right, top, z);
-	 glVertex3f (left, top, z);
+	 while ((objects[i]->getVert(j)) != 0)
+	 {
+		  Log("\ngetting object[%d] vertex %d\n", i, j);
+		  Log("vertex = <%f, %f, %f>\n", objects[i]->getVert(j)[0], objects[i]->getVert(j)[1], objects[i]->getVert(j)[2]);
+		  glVertex3f (objects[i]->getVert(j)[0], objects[i]->getVert(j)[1], objects[i]->getVert(j)[2]);
+		  j++;
+	 }
 	 glEnd();
-	 glPopMatrix();
 }
+
+void putPlayer(int &i)
+{
+	 int j = 0;
+	 glColor3ub (10, 250, 155);
+	 glTranslatef(pos[0], pos[1], pos[2]);
+	 glBegin(GL_POLYGON);
+	 while ((objects[i]->getVert(j)) != 0)
+	 {
+		  Log("\ngetting player, object[%d], vertex %d\n", i, j);
+		  Log("vertex = <%f, %f>\n", objects[i]->getVert(j)[0], objects[i]->getVert(j)[1]);
+		  glVertex2i (objects[i]->getVert(j)[0], objects[i]->getVert(j)[1]);
+		  j++;
+	 }
+	 glEnd();
+}
+
+/*
+void drawstupid(void)
+{
+	 int i = 0;
+	 //Draw a simple square
+	 {
+		  glColor3ub(230,160,190);
+		  glBegin(GL_QUADS);
+		  i = 1;
+		  while (i <= 4)
+		  {
+				if (i == 1)
+					 glVertex2i(-25.0, -50.0);
+				else if (i == 2)
+					 glVertex2i(-25.0, 50.0);
+				else if (i == 3)
+					 glVertex2i(25.0, 50.0);
+				else if (i == 4)
+					 glVertex2i(25.0, -50.0);
+				i++;
+		  }
+		  glEnd();
+	 }
+}
+*/
 
 void render(void)
 {
 	 //	 const char heading[] = "animation";
 	 //	 Rect r;
 
-	 glClear(GL_COLOR_BUFFER_BIT);
 	 //	 r.bot = yres - 20;
 	 //	 r.left = 10;
 	 //	 r.center = 0;
 	 //	 ggprint8b(&r, 16, 0, heading);
-	 putOval();
+
+	 Log("in render, objcnt = %d\n", objcnt);
+	 int i = 0;
+	 glClear(GL_COLOR_BUFFER_BIT);
 	 //Draw a simple square
 	 {
 		  float wid = 40.0f;
-		  glColor3ub(30,60,90);
 		  glPushMatrix();
-		  glTranslatef(pos[0], pos[1], pos[2]);
-		  glBegin(GL_QUADS);
-		  glVertex2i(-wid,-wid);
-		  glVertex2i(-wid, wid);
-		  glVertex2i( wid, wid);
-		  glVertex2i( wid,-wid);
+
+		  for (i = 0; i < objcnt-1; i++)
+				putObj(i);
+		  i=objcnt-1;
+		  
+		  putPlayer(i);
+
 		  glEnd();
+
 		  glPopMatrix();
 	 }
+	 glXSwapBuffers(dpy, win);
 	 // try to draw a rectangle in the middle of the screen
 }
 

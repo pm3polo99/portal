@@ -1,5 +1,6 @@
 #pragma once
 #include "const.h"
+#include "log.h"
 #include <iostream>
 #include <cstdlib>
 #include <fstream>
@@ -30,6 +31,8 @@ typedef float Vec[3];
 static const Vec zero_vec = {0.0, 0.0, 0.0};
 static const Vec empty_vec = {-1.0, -1.0, -1.0};
 
+extern int objcnt;
+
 static float pWidth = 100;
 static float pHeight = 150;
 static float pDepth = 1;
@@ -46,7 +49,8 @@ class object
 		  Vec pos;
 		  int portable;
 		  vec_list * head;
-		  Vec n;
+		  Vec n; // normal unit vector of object
+		  Vec d; // directional unit vector of object. always normal to n
 
 		  void setN(void);
 

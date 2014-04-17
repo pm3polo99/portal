@@ -4,6 +4,7 @@ using namespace std;
 
 object::object (const object& r)
 {
+	 Log("in object copy constructor\n");
 	 pos[0] = r.pos[0];
 	 pos[1] = r.pos[1];
 	 pos[2] = r.pos[2];
@@ -12,10 +13,16 @@ object::object (const object& r)
 	 n[1] = r.n[1];
 	 n[2] = r.n[2];
 	 head = r.head;
+	 d[0] = r.n[0];
+	 d[1] = r.n[1];
+	 d[2] = r.n[2];
+	 objcnt++;
+	 Log("end of object copy constructor, objcnt now = %d\n", objcnt);
 }
 
 object::object (const Vec p, const int able, vec_list * vl) // acts as default constructor
 {
+	 Log("in default object constructor\n");
 	 pos[0] = p[0];
 	 pos[1] = p[1];
 	 pos[2] = p[2];
@@ -32,10 +39,16 @@ object::object (const Vec p, const int able, vec_list * vl) // acts as default c
 	 n[0] = -1.0;
 	 n[1] = 0.0;
 	 n[2] = 0.0;
+	 d[0] = 0.0;
+	 d[1] = 1.0;
+	 d[2] = 0.0;
+	 objcnt++;
+	 Log("end of object constructor, objcnt now = %d\n", objcnt);
 }
 
 object::~object()
 {
+	 Log("in object destructor\n");
 	 pos[0] = empty_vec[0];
 	 pos[1] = empty_vec[1];
 	 pos[2] = empty_vec[2];
@@ -44,6 +57,8 @@ object::~object()
 	 n[1] = 0.0;
 	 n[2] = 0.0;
 	 head = initNode();
+	 objcnt--;
+	 Log("end of object destructor, objcnt now = %d\n", objcnt);
 }
 
 vec_list * object::initNode(void)
@@ -504,18 +519,21 @@ object & object::operator = (const object &r)
 /* automatically calls object constructor? */
 portal::portal()
 {
+	 objcnt--;
 	 setIsPlaced(0);
 	 drawPortal();
 }
 
 portal::portal(const portal &r) : object(r)
 {
+	 objcnt--;
 	 is_placed = r.is_placed;
 }
 
 /* automatically calls object destructor? */
 portal::~portal()
 {
+	 objcnt++;
 	 is_placed = 0;
 }
 
