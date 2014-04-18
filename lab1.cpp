@@ -368,6 +368,8 @@ void check_keys(XEvent *e)
 				shift=1;
 				return;
 		  }
+		  if (key == XK_space && jumped == 1)
+				keys[XK_space] = 0;
 	 }
 	 else
 	 {
@@ -416,7 +418,9 @@ void physics(void)
 		  }
 		  else
 		  {
-				pos[0] += 15;
+				if (vel[0] < 15)
+					 vel[0] += 5;
+				pos[0] += vel[0];
 		  }
 		  if (vel[1] > 0.0)
 				addgrav = 1;
@@ -431,7 +435,9 @@ void physics(void)
 		  }
 		  else
 		  {
-				pos[0] -= 15;
+				if (vel[0] > -15)
+					 vel[0] -= 5;
+				pos[0] += vel[0];
 		  }
 		  if (vel[1] > 0.0)
 				addgrav = 1;
@@ -449,7 +455,7 @@ void physics(void)
 
 	 if (keys[XK_space])
 	 {
-		  if (jumped && vel[1] != 0.0)
+		  if (jumped || vel[1] != 0.0)
 		  {
 				// already jumped, do nothing
 		  }
@@ -462,10 +468,9 @@ void physics(void)
 		  }
 		  else
 		  {
-				vel[1] = 10;
+				vel[1] = 25;
 				pos[1] += vel[1];
-				if (vel[1] > 0.0)
-					 addgrav = 1;
+				addgrav = 1;
 		  }
 		  jumped = 1;
 	 }
@@ -477,72 +482,18 @@ void physics(void)
 	 {
 		  pos[1] = 36.0;
 		  vel[1] = 0.0;
-	 }
-	 if (vel[0] == 0.0)
-	 {
-		  //done with jump ??
-		  jumped = 0;
+		  addgrav = 0;
 	 }
 	 //Apply gravity
 	 if (addgrav)
+	 {
 		  vel[1] -= 2.5;
+	 }
+	 if (vel[0] > 0)
+		  vel[0] -= 1;
+	 else if (vel[0] < 0)
+		  vel[0] += 1;
 }
-
-/*
-	void putOval(void)
-	{
-	Vec v;
-	int i = 0;
-	glClear (GL_COLOR_BUFFER_BIT);
-	glColor3ub (0, 0, 0);
-	glPushMatrix();
-//	 glTranslatef(plist[(plast+1)%2]->pos[0], plist[(plast+1)%2]->pos[1], plist[(plast+1)%2]->pos[2]);
-glBegin(GL_TRIANGLE_FAN);
-while (i < portalres)
-{
-v[0] = pLeft->getVert(i)[0];
-v[1] = pLeft->getVert(i)[1];
-v[2] = pLeft->getVert(i)[2];
-glVertex3f(v[0], v[1], v[2]);
-//		  glVertex3f(pLeft->getVert(i)[0], pLeft->getVert(i)[1], pLeft->getVert(i)[2]);
-i++;
-}
-*/
-/* actually starting at mid right??
- * x = sin(t), y = cos(t)
- */
-/* HERE
-	int i = 0, j = 0, k = 0;
-	do
-	{
-	while (i < imgres)
-	{
-	j = 0;
-	while (j < imgres)
-	{
-	k = 0;
-	while (k < imgres)
-	{
-	if (plist[(plast+1)%2]->img[i][j][k][0] == 1)
-	{
-	glVertex3f(i, j, k);
-	}
-	k++;
-	}
-	j++;
-	}
-	i++;
-	}
-	i++;
-	}
-	while (i < imgres);
-	*/
-/* HERE
-
-	glEnd();
-	glPopMatrix();
-	}
-	*/
 
 void putObj(int &i)
 {
@@ -575,61 +526,25 @@ void putPlayer(int &i)
 	 glEnd();
 }
 
-/*
-void drawstupid(void)
-{
-	 int i = 0;
-	 //Draw a simple square
-	 {
-		  glColor3ub(230,160,190);
-		  glBegin(GL_QUADS);
-		  i = 1;
-		  while (i <= 4)
-		  {
-				if (i == 1)
-					 glVertex2i(-25.0, -50.0);
-				else if (i == 2)
-					 glVertex2i(-25.0, 50.0);
-				else if (i == 3)
-					 glVertex2i(25.0, 50.0);
-				else if (i == 4)
-					 glVertex2i(25.0, -50.0);
-				i++;
-		  }
-		  glEnd();
-	 }
-}
-*/
-
 void render(void)
 {
-	 //	 const char heading[] = "animation";
-	 //	 Rect r;
-
-	 //	 r.bot = yres - 20;
-	 //	 r.left = 10;
-	 //	 r.center = 0;
-	 //	 ggprint8b(&r, 16, 0, heading);
-
 	 Log("in render, objcnt = %d\n", objcnt);
 	 int i = 0;
 	 glClear(GL_COLOR_BUFFER_BIT);
-	 //Draw a simple square
 	 {
-		  //float wid = 40.0f;
-		  glPushMatrix();
+		  glPushMatrix(); // for data storage on vid card, only beneficial for static(ish) objects supposidly
 
 		  for (i = 0; i < objcnt-1; i++)
 				putObj(i);
 		  i=objcnt-1;
 		  
 		  putPlayer(i);
+		  glPopMatrix();
+
 
 		  glEnd();
 
-		  glPopMatrix();
 	 }
 	 glXSwapBuffers(dpy, win);
-	 // try to draw a rectangle in the middle of the screen
 }
 

@@ -183,8 +183,10 @@ vec_list * object::getLastVert (void)
 
 void object::makeUnit(Vec * v)
 {
-	 double l = sqrt(pow((double)(*v[0]), 2.0) + pow((double)(*v[1]), 2.0) + pow((double)(*v[2]), 2.0));
-	 Log("in makeUnit, magnitude calculated to be %f\n", l);
+	 double l = (pow((double)(*v[0]), 2.0) + pow((double)(*v[1]), 2.0) + pow((double)(*v[2]), 2.0));
+	 Log("in makeUnit, l calculated to be %f\n", l);
+	 l = sqrt(l);
+	 Log("l calculated to be %f\n", l);
 	 *v[0] = (*v[0]/l);
 	 *v[1] = (*v[1]/l);
 	 *v[2] = (*v[2]/l);
