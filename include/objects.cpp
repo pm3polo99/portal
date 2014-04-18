@@ -16,6 +16,7 @@ object::object (const object& r)
 	 d[0] = r.n[0];
 	 d[1] = r.n[1];
 	 d[2] = r.n[2];
+	 deadly = r.deadly;
 	 objcnt++;
 	 Log("end of object copy constructor, objcnt now = %d\n", objcnt);
 }
@@ -35,13 +36,14 @@ object::object (const Vec p, const int able, vec_list * vl) // acts as default c
 	 {
 		  head = vl;
 	 }
-	 /* facing left */
-	 n[0] = -1.0;
+	 /* both zero vectors - this will serve as a sentinel value when we check to see if we need to set these */
+	 n[0] = 0.0;
 	 n[1] = 0.0;
 	 n[2] = 0.0;
 	 d[0] = 0.0;
-	 d[1] = 1.0;
+	 d[1] = 0.0;
 	 d[2] = 0.0;
+	 setDeadly(0);
 	 objcnt++;
 	 Log("end of object constructor, objcnt now = %d\n", objcnt);
 }
@@ -53,10 +55,14 @@ object::~object()
 	 pos[1] = empty_vec[1];
 	 pos[2] = empty_vec[2];
 	 portable = 0;
-	 n[0] = -1.0;
+	 n[0] = 0.0;
 	 n[1] = 0.0;
 	 n[2] = 0.0;
+	 d[0] = 0.0;
+	 d[1] = 0.0;
+	 d[2] = 0.0;
 	 head = initNode();
+	 setDeadly(0);
 	 objcnt--;
 	 Log("end of object destructor, objcnt now = %d\n", objcnt);
 }
@@ -71,23 +77,34 @@ vec_list * object::initNode(void)
 	 return a;
 }
 
-/* following takes FIRST TWO VECTORS and calculates the normal vector based off of them */
-void object::setN(void)
-{
-	 n[0] = (head->next->v[0] - head->v[0]);
-	 n[1] = (head->next->v[1] - head->v[1]);
-	 n[2] = (head->next->v[2] - head->v[2]);
-}
-
 // accessors
-float * object::getPos (void)
+Vec * object::getPos (void)
 {
-	 return pos;
+	 return &pos;
 }
 
-float * object::getN(void)
+void object::setD (const Vec &v)
 {
-	 return n;
+	 d[0] = v[0];
+	 d[1] = v[1];
+	 d[2] = v[2];
+}
+
+void object::setN (const Vec &v)
+{
+	 n[0] = v[0];
+	 n[1] = v[1];
+	 n[2] = v[2];
+}
+
+Vec * object::getD(void)
+{
+	 return &d;
+}
+
+Vec * object::getN(void)
+{
+	 return &n;
 }
 
 void object::getPos (Vec &p)
@@ -142,7 +159,7 @@ void object::getVert (Vec &p, int i = 0)
 float * object::getVert (int i = 0)
 {
 	 if (i == 0)
-		  return head->v;
+		  return (head->v);
 	 vec_list *t = head;
 	 while (i > 0)
 	 {
@@ -151,7 +168,7 @@ float * object::getVert (int i = 0)
 				return 0;
 		  i--;
 	 }
-	 return t->v;
+	 return (t->v);
 }
 
 vec_list * object::getLastVert (void)
@@ -162,6 +179,15 @@ vec_list * object::getLastVert (void)
 		  t = t->next;
 	 }
 	 return t;
+}
+
+void object::makeUnit(Vec * v)
+{
+	 double l = sqrt(pow((double)(*v[0]), 2.0) + pow((double)(*v[1]), 2.0) + pow((double)(*v[2]), 2.0));
+	 Log("in makeUnit, magnitude calculated to be %f\n", l);
+	 *v[0] = (*v[0]/l);
+	 *v[1] = (*v[1]/l);
+	 *v[2] = (*v[2]/l);
 }
 
 string object::toString(void)
@@ -183,9 +209,18 @@ string object::toString(void)
 	 oss << "Normal vector:\n";
 	 oss << "\t<" << n[0] << ", " << n[1] << ", " << n[2] << ">";
 	 oss << endl;
+	 oss << "Directional vector:\n";
+	 oss << "\t<" << d[0] << ", " << d[1] << ", " << d[2] << ">";
+	 oss << endl;
+	 oss << "Object is deadly?\n";
+	 if (isDeadly())
+		  oss << "True\n";
+	 else
+		  oss << "False\n";
 	 return oss.str();
 }
 
+// position vector, isPortalable, verticies, normal vector, directional vector, isDeadly
 string object::dumpCsv(void)
 {
 	 ostringstream oss;
@@ -196,7 +231,9 @@ string object::dumpCsv(void)
 		  oss << t->v[0] << "," << t->v[1] << "," << t->v[2] << ",";
 		  t = t->next;
 	 }
-	 oss << n[0] << "," << n[1] << "," << n[2];
+	 oss << n[0] << "," << n[1] << "," << n[2] << ",";
+	 oss << d[0] << "," << d[1] << "," << d[2] << ",";
+	 oss << isDeadly();
 	 oss << endl;
 	 return oss.str();
 }
@@ -320,6 +357,16 @@ int object::isEmpty(void)
 	 if (head->v[0] == empty_vec[0] && head->v[1] == empty_vec[1] && head->v[2] == empty_vec[2])
 		  return 2;
 	 return 0;
+}
+
+int object::isDeadly(void)
+{
+	 return deadly;
+}
+
+void object::setDeadly(const int &a = 1)
+{
+	 deadly = a;
 }
 
 void object::addVert (const Vec p)
@@ -522,12 +569,14 @@ portal::portal()
 	 objcnt--;
 	 setIsPlaced(0);
 	 drawPortal();
+	 setDeadly(0);
 }
 
 portal::portal(const portal &r) : object(r)
 {
 	 objcnt--;
 	 is_placed = r.is_placed;
+	 setDeadly(0);
 }
 
 /* automatically calls object destructor? */
@@ -535,6 +584,7 @@ portal::~portal()
 {
 	 objcnt++;
 	 is_placed = 0;
+	 setDeadly(0);
 }
 
 int portal::isPlaced(void)
@@ -594,15 +644,31 @@ void portal::setPlaced(const int &a = -1)
 
 void portal::drawPortal(void)
 {
-	 float x = 0.0, y = 0.0, z = 0.0, t = 0.0;
-	 for (int i = 0; i < portalres; i++)
-	 {
-		  t += (pi / portalres);
-		  x = (cos(t) + 1) * pWidth;
-		  y = (sin(t) + 1) * pHeight;
-		  z = (0 + 1) * pDepth;
-		  addVec((int)x, (int)y, (int)z);
-	 }
+	 int x = 0, y = 0, z = 0;
+	 x = p_width;
+	 y = p_height;
+	 Vec a, b, c;
+	 a[0] = -1*x;
+	 a[1] = -1*y;
+	 a[2] = 0;
+	 b[0] = -1*x;
+	 b[1] = 1*y;
+	 b[2] = 0;
+	 c[0] = 1*x;
+	 c[1] = 1*y;
+	 c[2] = 0;
+	 addVec(-1*x, -1*y, z); // draw a basic portal
+	 addVec(-1*x, 1*y, z);
+	 addVec(1*x, 1*y, z);
+	 addVec(1*x, -1*y, z);
+	 VecSub(a, b, d); // directional vector, not unit
+	 VecSub(b, c, n); // normal vector, not unit
+	 Log("in drawPortal, creating vectors:\n");
+	 Log("\td = <%f,%f,%f>\n\tn = <%f,%f,%f>\n", d[0], d[1], d[2], n[0], n[1], n[2]);
+	 Log("making magnitude 1...\n");
+	 makeUnit(&d);
+	 makeUnit(&n);
+	 Log("\td = <%f,%f,%f>\n\tn = <%f,%f,%f>\n", d[0], d[1], d[2], n[0], n[1], n[2]);
 }
 
 portal & portal::operator = (const portal &r)
@@ -616,182 +682,3 @@ bool operator == (const portal &l, const portal &r)
 {
 	 return (l.pos == r.pos);
 }
-
-/*
-portal_list::portal_list()
-{
-	 try
-	 {
-		  plist = new portal[2];
-	 }
-	 catch (bad_alloc)
-	 {
-		  cout << "Insufficient memory! Aborting\n";
-		  exit(1);
-	 }
-	 catch (...)
-	 {
-		  cout << "An unknown error occured. Aborting\n";
-		  exit(2);
-	 }
-	 portal t, u;
-	 plist[LEFT] = t;
-	 plist[RIGHT] = u;
-	 plast = 0;
-	 portal_count = 0;
-}
-
-portal_list::portal_list(const portal_list &p) : portal(p)
-{
-	 try
-	 {
-		  plist = new portal[2];
-	 }
-	 catch (bad_alloc)
-	 {
-		  cout << "Insufficient memory! Aborting\n";
-		  exit(1);
-	 }
-	 catch (...)
-	 {
-		  cout << "An unknown error occured. Aborting\n";
-		  exit(2);
-	 }
-	 plist[LEFT] = p.plist[LEFT];
-	 plist[RIGHT] = p.plist[RIGHT];
-	 plast = p.plast;
-	 portal_count = p.portal_count;
-}
-
-portal_list::portal_list(const portal &a, const portal &b, const int &c = 0)
-{
-	 plast = c;
-	 portal_count = 2;
-	 if (&a == 0)
-		  portal_count--;
-	 if (&b == 0)
-		  portal_count--;
-	 try
-	 {
-		  plist = new portal[2];
-	 }
-	 catch (bad_alloc)
-	 {
-		  cout << "Insufficient memory! Aborting\n";
-		  exit(1);
-	 }
-	 catch (...)
-	 {
-		  cout << "An unknown error occured. Aborting\n";
-		  exit(2);
-	 }
-	 plist[LEFT] = a;
-	 plist[RIGHT] = b;
-}
-
-portal_list::~portal_list()
-{
-	 delete plist;
-	 plast = 0;
-	 portal_count = 0;
-}
-
-portal * portal_list::getPortal(const int &c = -1)
-{
-	 if (plist == 0)
-		  return 0;
-	 if (c != LEFT && c != RIGHT)
-	 {
-		  return &(plist[plast]);
-	 }
-	 return (&(plist[c]));
-}
-
-int portal_list::getPlast(void)
-{
-	 return plast;
-}
-
-int portal_list::getPortalCount(void)
-{
-	 return portal_count;
-}
-
-string portal_list::toString(void)
-{
-	 ostringstream oss;
-	 oss << "Portal Count:\n\t" << getPortalCount() << endl;
-	 oss << "Last portal placed:\n\t" << (getPlast() ? ("1 (Right Portal)"):("0 (Left Portal)")) << endl;
-	 for (int i = 0; i  < portal_count; i++)
-	 {
-		  oss << plist[i].toString();
-	 }
-	 return oss.str();
-}
-
-string portal_list::dumpCsv(void)
-{
-	 ostringstream oss;
-	 oss << getPortalCount() << ",";
-	 oss << getPlast() << ",";
-	 for (int i = 0; i  < portal_count; i++)
-	 {
-		  oss << plist[i].dumpCsv();
-	 }
-	 return oss.str();
-}
-
-void portal_list::setPlast(const int &a = -1)
-{
-	 if (a < 0 || a > 1)
-	 {
-		  plast = 0;
-		  return;
-	 }
-	 plast = a;
-}
-
-void portal_list::setPortalCount(const int &a = -1)
-{
-	 if (a < 0 || a > 2)
-	 {
-		  portal_count = 0;
-		  return;
-	 }
-	 portal_count = a;
-}
-
-void portal_list::destroyPortal(const int &c = -1)
-{
-	 if (c != LEFT && c != RIGHT)
-	 {
-		  plist[plast].~portal(); // ??
-	 }
-	 else
-	 {
-		  plist[c].~portal();
-	 }
-	 portal_count--;
-	 TOGGLE(plast);
-}
-
-void portal_list::makePortal(void)
-{
-	 if (portal_count == 2)
-	 {
-		  destroyPortal(plast);
-	 }
-	 TOGGLE(plast);
-	 portal t;
-	 plist[plast] = t;
-	 portal_count++;
-}
-
-portal_list & portal_list::operator = (const portal_list &r)
-{
-	 plist = r.plist;
-	 plast = r.plast;
-	 portal_count = r.portal_count;
-	 return (*this);
-}
-*/

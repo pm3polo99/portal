@@ -31,11 +31,10 @@ typedef float Vec[3];
 static const Vec zero_vec = {0.0, 0.0, 0.0};
 static const Vec empty_vec = {-1.0, -1.0, -1.0};
 
-extern int objcnt;
+static const int p_width = 3; // half width
+static const int p_height = 10; // half height
 
-static float pWidth = 100;
-static float pHeight = 150;
-static float pDepth = 1;
+extern int objcnt;
 
 typedef struct _vec_list
 {
@@ -51,25 +50,32 @@ class object
 		  vec_list * head;
 		  Vec n; // normal unit vector of object
 		  Vec d; // directional unit vector of object. always normal to n
-
-		  void setN(void);
+		  int deadly;
 
 	 public:
 		  object (const object&);
 		  object (const Vec p = zero_vec, const int able = 0, vec_list * vl = 0);
 		  ~object();
 		  vec_list * initNode(void);
-		  float * getN(void);
-		  float * getPos (void);
+		  void setD(const Vec&);
+		  void setN(const Vec&);
+		  Vec * getN(void);
+		  Vec * getD(void);
+		  Vec * getPos (void);
 		  void getPos (Vec &);
 		  int isPortalable (void);
 		  int getPortable (void);
+		  void setDeadly(const int &);
+		  int isDeadly(void);
 		  vec_list * getHead (void);
 		  float * getVert (int);
 		  void getVert (Vec &, int);
+		  void makeUnit(Vec *);
 		  vec_list * getLastVert (void);
 		  string toString(void);
 		  string dumpCsv(void);
+		  void setN (const Vec *);
+		  void setD (const Vec *);
 		  void setPos (const int &, const int &, const int &);
 		  void setPos (const Vec &);
 		  void setPos (const int [3]);
@@ -117,30 +123,30 @@ class portal : public object
 };
 
 /*
-class portal_list : public portal
-{
-	 protected:
-		  int portal_count;
-		  int plast;
-		  portal * plist;
+	class portal_list : public portal
+	{
+	protected:
+	int portal_count;
+	int plast;
+	portal * plist;
 
-	 public:
-		  portal_list();
-		  portal_list(const portal_list &);
-		  portal_list(const portal &, const portal &, const int &);
-		  ~portal_list();
+	public:
+	portal_list();
+	portal_list(const portal_list &);
+	portal_list(const portal &, const portal &, const int &);
+	~portal_list();
 
-		  portal * getPortal(const int &);
-		  int getPlast(void);
-		  int getPortalCount(void);
-		  string toString(void);
-		  string dumpCsv(void);
+	portal * getPortal(const int &);
+	int getPlast(void);
+	int getPortalCount(void);
+	string toString(void);
+	string dumpCsv(void);
 
-		  void setPlast (const int &);
-		  void setPortalCount (const int &);
+	void setPlast (const int &);
+	void setPortalCount (const int &);
 
-		  void destroyPortal (const int &);
-		  void makePortal (void);
-		  portal_list& operator = (const portal_list&);
-};
-*/
+	void destroyPortal (const int &);
+	void makePortal (void);
+	portal_list& operator = (const portal_list&);
+	};
+	*/

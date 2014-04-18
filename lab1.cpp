@@ -84,6 +84,7 @@ void initObjects(void);
 //global variables
 int done=0;
 int keys[65536];
+int maxobj = 100;
 
 int objcnt = 0;
 
@@ -222,6 +223,29 @@ void init()
 
 	 memset(keys, 0, 65536);
 	 Log("end of init\n");
+}
+
+void resizeObjects(void)
+{
+	 Log("Start of resizeObjects()\n");
+	 object ** tmp;
+	 try
+	 {
+		  tmp = new object * [maxobj*2];
+	 }
+	 catch (bad_alloc)
+	 {
+		  printf("Insufficient memory! Aborting\n");
+		  exit(1);
+	 }
+	 catch (...)
+	 {
+		  printf("An unknown error occured! Exiting\n");
+		  exit(2);
+	 }
+	 for (int i = 0; i < objcnt; i++)
+		  tmp[i] = objects[i];
+	 maxobj *= 2;
 }
 
 void initObjects(void)
@@ -528,8 +552,8 @@ void putObj(int &i)
 	 while ((objects[i]->getVert(j)) != 0)
 	 {
 		  Log("\ngetting object[%d] vertex %d\n", i, j);
-		  Log("vertex = <%f, %f, %f>\n", objects[i]->getVert(j)[0], objects[i]->getVert(j)[1], objects[i]->getVert(j)[2]);
-		  glVertex3f (objects[i]->getVert(j)[0], objects[i]->getVert(j)[1], objects[i]->getVert(j)[2]);
+		  Log("vertex = <%f, %f, %f>\n", (objects[i]->getVert(j)[0]), (objects[i]->getVert(j)[1]), (objects[i]->getVert(j)[2]));
+		  glVertex3f ((objects[i]->getVert(j)[0]), (objects[i]->getVert(j)[1]), (objects[i]->getVert(j)[2]));
 		  j++;
 	 }
 	 glEnd();
@@ -544,8 +568,8 @@ void putPlayer(int &i)
 	 while ((objects[i]->getVert(j)) != 0)
 	 {
 		  Log("\ngetting player, object[%d], vertex %d\n", i, j);
-		  Log("vertex = <%f, %f>\n", objects[i]->getVert(j)[0], objects[i]->getVert(j)[1]);
-		  glVertex2i (objects[i]->getVert(j)[0], objects[i]->getVert(j)[1]);
+		  Log("vertex = <%f, %f, %f>\n", (objects[i]->getVert(j)[0]), (objects[i]->getVert(j)[1]), (objects[i]->getVert(j)[2]));
+		  glVertex3f ((objects[i]->getVert(j)[0]), (objects[i]->getVert(j)[1]), (objects[i]->getVert(j)[2]));
 		  j++;
 	 }
 	 glEnd();
@@ -592,7 +616,7 @@ void render(void)
 	 glClear(GL_COLOR_BUFFER_BIT);
 	 //Draw a simple square
 	 {
-		  float wid = 40.0f;
+		  //float wid = 40.0f;
 		  glPushMatrix();
 
 		  for (i = 0; i < objcnt-1; i++)
