@@ -185,7 +185,10 @@ void object::makeUnit(Vec * v)
 {
 	 double l = (pow((double)(*v[0]), 2.0) + pow((double)(*v[1]), 2.0) + pow((double)(*v[2]), 2.0));
 	 Log("in makeUnit, l calculated to be %f\n", l);
-	 l = sqrt(l);
+	 if (l != 0.0)
+		  l = sqrt(l);
+	 else
+		  l = 1;
 	 Log("l calculated to be %f\n", l);
 	 *v[0] = (*v[0]/l);
 	 *v[1] = (*v[1]/l);
@@ -663,9 +666,10 @@ void portal::drawPortal(void)
 	 addVec(-1*x, 1*y, z);
 	 addVec(1*x, 1*y, z);
 	 addVec(1*x, -1*y, z);
+	 Log("in drawPortal, creating vectors:\n");
+	 Log("\td = <%f,%f,%f>\n\tn = <%f,%f,%f>\n", d[0], d[1], d[2], n[0], n[1], n[2]);
 	 VecSub(a, b, d); // directional vector, not unit
 	 VecSub(b, c, n); // normal vector, not unit
-	 Log("in drawPortal, creating vectors:\n");
 	 Log("\td = <%f,%f,%f>\n\tn = <%f,%f,%f>\n", d[0], d[1], d[2], n[0], n[1], n[2]);
 	 Log("making magnitude 1...\n");
 	 makeUnit(&d);
