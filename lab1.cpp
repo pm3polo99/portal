@@ -524,9 +524,9 @@ void physics(void)
 
 	 pos[0]+=vel[0];
 	 pos[1]+=vel[1];
-//	 pos[2]+=vel[2];
-	 //	 objects[PLAYER]->setPos(pos);
-	 objects[PLAYER]->shift(vel);
+	 pos[2]+=vel[2];
+	 	 objects[PLAYER]->setPos(pos);
+	// objects[PLAYER]->shift(vel);
 
 	 Log("post:\npos[0] = %f\npos[1] = %f\npos[2] = %f\n", pos[0], pos[1], pos[2]);
 }
@@ -550,9 +550,9 @@ void putPlayer()
 {
 	 int j = 0;
 	 glColor3ub (10, 250, 155);
-//	 pos[0] = *(objects[PLAYER]->getPos()[0]);
-//	 pos[1] = *(objects[PLAYER]->getPos()[1]);
-//	 pos[2] = *(objects[PLAYER]->getPos()[2]);
+	 pos[0] = (objects[PLAYER]->getPos()[0][0]);
+	 pos[1] = (objects[PLAYER]->getPos()[0][1]);
+	 pos[2] = (objects[PLAYER]->getPos()[0][2]);
 	 Log("\nin putPlayer\npos[0] = %f, pos[1] = %f\n", pos[0], pos[1]);
 	 glTranslatef(pos[0], pos[1], pos[2]);
 	 glBegin(GL_POLYGON);
