@@ -83,6 +83,20 @@ Vec * object::getPos (void)
 	 return &pos;
 }
 
+void object::setD (const float &a, const float &b, const float &c)
+{
+	 d[0] = a;
+	 d[1] = b;
+	 d[2] = c;
+}
+
+void object::setN (const float &a, const float &b, const float &c)
+{
+	 n[0] = a;
+	 n[1] = b;
+	 n[2] = c;
+}
+
 void object::setD (const Vec &v)
 {
 	 d[0] = v[0];
@@ -189,10 +203,12 @@ void object::makeUnit(Vec * v)
 		  l = sqrt(l);
 	 else
 		  l = 1;
-	 Log("l calculated to be %f\n", l);
-	 *v[0] = (*v[0]/l);
-	 *v[1] = (*v[1]/l);
-	 *v[2] = (*v[2]/l);
+	 Log("l calculated to be %f, applying to vector components\n", l);
+	 l = 1/l;
+	 *v[0] = (*v[0])*l;
+	 *v[1] = (*v[1])*l;
+	 *v[2] = (*v[2])*l;
+	 Log("<%.2f, %.2f, %.2f>\n", *v[0], *v[1], *v[2]);
 }
 
 string object::toString(void)
@@ -251,21 +267,33 @@ string object::dumpCsv(void)
  * or keep a max width of the object?
  */
 
+void object::setPos (void)
+{
+	 Log("in default setPos, setting pos to zero vec\n");
+	 pos[0] = xres/2.0;
+	 pos[1] = yres/2.0;
+	 pos[2] = 0.0;
+	 Log("now pos[0] = %f, pos[1] = %f\n");
+}
+
 void object::setPos (const Vec &p)
 {
-	 if (p[0] < 0)
-		  pos[0] = 0;
+	 Log("in setPos\np[0] = %f, p[1] = %f\n", p[0], p[1]);
+	 if (p[0] < 0.0)
+		  pos[0] = 0.0;
 	 else
-		  pos[0] = p[0];
-	 if (p[1] < 0)
-		  pos[1] = 0;
+		  pos[0] = (p[0]);
+	 if (p[1] < 0.0)
+		  pos[1] = 0.0;
 	 else
-		  pos[1] = p[1];
-	 if (p[2] < 0)
-		  pos[2] = 0;
+		  pos[1] = (p[1]);
+	 if (p[2] < 0.0)
+		  pos[2] = 0.0;
 	 else
-		  pos[2] = p[2];
+		  pos[2] = (p[2]);
+	 Log("now pos[0] = %f, pos[1] = %f\n");
 	 /* shift image's position with position */
+	 /*
 	 vec_list * t = head;
 	 while (t != 0)
 	 {
@@ -274,22 +302,26 @@ void object::setPos (const Vec &p)
 		  t->v[2] += p[2];
 		  t = t->next;
 	 }
+	 */
 }
-void object::setPos (const int p[3])
+void object::setPos (const float p[3])
 {
-	 if (p[0] < 0)
-		  pos[0] = 0;
+	 Log("in setPos\np[0] = %f, p[1] = %f\n", p[0], p[1]);
+	 if (p[0] < 0.0)
+		  pos[0] = 0.0;
 	 else
-		  pos[0] = p[0];
-	 if (p[1] < 0)
-		  pos[1] = 0;
+		  pos[0] = (p[0]);
+	 if (p[1] < 0.0)
+		  pos[1] = 0.0;
 	 else
-		  pos[1] = p[1];
-	 if (p[2] < 0)
-		  pos[2] = 0;
+		  pos[1] = (p[1]);
+	 if (p[2] < 0.0)
+		  pos[2] = 0.0;
 	 else
-		  pos[2] = p[2];
+		  pos[2] = (p[2]);
+	 Log("now pos[0] = %f, pos[1] = %f\n");
 	 /* shift image's position with position */
+	 /*
 	 vec_list * t = head;
 	 while (t != 0)
 	 {
@@ -298,22 +330,26 @@ void object::setPos (const int p[3])
 		  t->v[2] += p[2];
 		  t = t->next;
 	 }
+	 */
 }
-void object::setPos (const int &x = 0, const int &y = 0, const int &z = 0)
+void object::setPos (const float &x, const float &y, const float &z)
 {
-	 if (x < 0)
-		  pos[0] = 0;
+	 Log("in setPos\nx = %f, y = %f\n", x, y);
+	 if (x < 0.0)
+		  pos[0] = 0.0;
 	 else
 		  pos[0] = x;
-	 if (y < 0)
-		  pos[1] = 0;
+	 if (y < 0.0)
+		  pos[1] = 0.0;
 	 else
 		  pos[1] = y;
-	 if (z < 0)
-		  pos[2] = 0;
+	 if (z < 0.0)
+		  pos[2] = 0.0;
 	 else
 		  pos[2] = z;
+	 Log("now pos[0] = %f, pos[1] = %f\n");
 	 /* shift image's position with position */
+	 /*
 	 vec_list * t = head;
 	 while (t != 0)
 	 {
@@ -322,6 +358,7 @@ void object::setPos (const int &x = 0, const int &y = 0, const int &z = 0)
 		  t->v[2] += z;
 		  t = t->next;
 	 }
+	 */
 }
 
 void object::setPortable (const int &a)
@@ -416,45 +453,7 @@ void object::addVec (const Vec p)
 	 return;
 }
 
-void object::addVert (const int p[3])
-{
-	 if (isEmpty()) // no verticies added yet (heads is empty)
-	 {
-		  head->v[0] = p[0];
-		  head->v[1] = p[1];
-		  head->v[2] = p[2];
-		  return;
-	 }
-	 vec_list * a = (vec_list *)malloc(1*sizeof(vec_list));
-	 a->v[0] = p[0];
-	 a->v[1] = p[1];
-	 a->v[2] = p[2];
-	 //				a->next = head; // head insertion
-	 getLastVert()->next = a; // tail insertion
-	 a->next = 0;
-	 return;
-}
-
-void object::addVec (const int p[3])
-{
-	 if (isEmpty()) // no verticies added yet (heads is empty)
-	 {
-		  head->v[0] = p[0];
-		  head->v[1] = p[1];
-		  head->v[2] = p[2];
-		  return;
-	 }
-	 vec_list * a = (vec_list *)malloc(1*sizeof(vec_list));
-	 a->v[0] = p[0];
-	 a->v[1] = p[1];
-	 a->v[2] = p[2];
-	 //				n->next = head; // head insertion
-	 getLastVert()->next = a; // tail insertion
-	 a->next = 0;
-	 return;
-}
-
-void object::addVert (const int &x = 0, const int &y = 0, const int &z = 0)
+void object::addVert (const float &x = 0, const float &y = 0, const float &z = 0)
 {
 	 if (isEmpty()) // no verticies added yet (heads is empty)
 	 {
@@ -473,7 +472,7 @@ void object::addVert (const int &x = 0, const int &y = 0, const int &z = 0)
 	 return;
 }
 
-void object::addVec (const int &x = 0, const int &y = 0, const int &z = 0)
+void object::addVec (const float &x = 0, const float &y = 0, const float &z = 0)
 {
 	 if (isEmpty()) // no verticies added yet (heads is empty)
 	 {
@@ -494,50 +493,99 @@ void object::addVec (const int &x = 0, const int &y = 0, const int &z = 0)
 
 void object::shift (const Vec &p)
 {
-	 pos[0] = p[0];
-	 pos[1] = p[1];
-	 pos[2] = p[2];
 	 /* shift image's position with position */
+	 /*
 	 vec_list * t = head;
 	 while (t != 0)
 	 {
-		  t->v[0] += p[0];
-		  t->v[1] += p[1];
-		  t->v[2] += p[2];
+		  t->v[0] += (p[0]);
+		  t->v[1] += (p[1]);
+		  t->v[2] += (p[2]);
 		  t = t->next;
 	 }
+	 fixVectors();
+	 */
+	 pos[0] += p[0];
+	 pos[1] += p[1];
+	 pos[2] += p[2];
 }
 
-void object::shift (const int p[3])
+void object::shift (const float p[3])
 {
-	 pos[0] = p[0];
-	 pos[1] = p[1];
-	 pos[2] = p[2];
 	 /* shift image's position with position */
+	 /*
 	 vec_list * t = head;
 	 while (t != 0)
 	 {
-		  t->v[0] += p[0];
-		  t->v[1] += p[1];
-		  t->v[2] += p[2];
+		  t->v[0] += (p[0]);
+		  t->v[1] += (p[1]);
+		  t->v[2] += (p[2]);
 		  t = t->next;
 	 }
+	 fixVectors();
+	 */
+	 pos[0] += p[0];
+	 pos[1] += p[1];
+	 pos[2] += p[2];
 }
 
-void object::shift (const int &x, const int &y, const int &z)
+void object::shift (const float &x, const float &y, const float &z)
 {
+	 /* shift image's position with position */
+	 /*
+	 vec_list * t = head;
+	 while (t != 0)
+	 {
+		  t->v[0] += (x);
+		  t->v[1] += (y);
+		  t->v[2] += (z);
+		  t = t->next;
+	 }
+	 fixVectors();
+	 */
+	 pos[0] += x;
+	 pos[1] += y;
+	 pos[2] += z;
+}
+
+/*
+void object::shift (const float &x, const float &y, const float &z)
+{
+*/
+	 /* shift image's position with position */
+/*
+	 vec_list * t = head;
+	 while (t != 0)
+	 {
+		  t->v[0] += (x - pos[0]);
+		  t->v[1] += (y - pos[1]);
+		  t->v[2] += (z - pos[2]);
+		  t = t->next;
+	 }
+	 fixVectors();
 	 pos[0] = x;
 	 pos[1] = y;
 	 pos[2] = z;
-	 /* shift image's position with position */
-	 vec_list * t = head;
-	 while (t != 0)
-	 {
-		  t->v[0] += x;
-		  t->v[1] += y;
-		  t->v[2] += z;
-		  t = t->next;
-	 }
+}
+*/
+
+void object::fixVectors(void)
+{
+	 Log("in fixVectors\n");
+	 Vec a, b, c;
+	 a[0] = getVert(0)[0];
+	 a[1] = getVert(0)[1];
+	 a[2] = getVert(0)[2];
+	 b[0] = getVert(1)[0];
+	 b[1] = getVert(1)[1];
+	 b[2] = getVert(1)[2];
+	 c[0] = getVert(2)[0];
+	 c[1] = getVert(2)[1];
+	 c[2] = getVert(2)[2];
+	 VecSub(a, b, d); // directional vector, not unit
+	 VecSub(b, c, n); // normal vector, not unit
+	 makeUnit(&d);
+	 makeUnit(&n);
 }
 
 object & object::operator = (const object &r)

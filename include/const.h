@@ -11,6 +11,10 @@ static const float gravity = -0.5f;
 #define RIGHT 1
 #define LEFT_PORTAL_KEY 46
 #define RIGHT_PORTAL_KEY 47
-static const int player_height = 15;
+#define PLAYER 0
+static const int player_lower_width = 15;
+static const int player_lower_height = 20;
+static const int player_upper_width = 30;
+static const int player_upper_height = 40;
 
 #endif // const.h

@@ -215,11 +215,13 @@ void init()
 	 Log("start of init()\n");
 	 initObjects();
 
-	 portals = new portal*[2];
-	 portals[LEFT] = new portal();
-	 portals[RIGHT] = new portal();
-	 portals[LEFT]->setPos(xres/3, yres/3, 0);
-	 portals[RIGHT]->setPos(xres/3, yres/3, 0);
+	 /*
+		 portals = new portal*[2];
+		 portals[LEFT] = new portal();
+		 portals[RIGHT] = new portal();
+		 portals[LEFT]->setPos(xres/4, yres/4, 0);
+		 portals[RIGHT]->setPos(xres/2, yres/2, 0);
+		 */
 
 	 memset(keys, 0, 65536);
 	 Log("end of init\n");
@@ -267,11 +269,11 @@ void initObjects(void)
 	 }
 	 try
 	 {
-		  objects[0] = new object(); // floor
-		  objects[1] = new object(); // left wall
-		  objects[2] = new object(); // right wall
-		  objects[3] = new object(); // ceiling
-		  objects[4] = new object(); // person
+		  objects[PLAYER] = new object(); // person
+		  objects[1] = new object(); // floor
+		  objects[2] = new object(); // left wall
+		  objects[3] = new object(); // right wall
+		  objects[4] = new object(); // ceiling
 	 }
 	 catch (bad_alloc)
 	 {
@@ -284,30 +286,43 @@ void initObjects(void)
 		  exit(2);
 	 }
 	 Log("about to add verticies to objects\n");
-	 objects[0]->addVec(1,1,1);
-	 objects[0]->addVec(1,51,1);
-	 objects[0]->addVec(xres-1,51,1);
-	 objects[0]->addVec(xres-1,1,1);
 
-	 objects[1]->addVec(1, 2, 1);
-	 objects[1]->addVec(1, yres-2, 1);
-	 objects[1]->addVec(51, yres-2, 1);
-	 objects[1]->addVec(51, 2, 1);
+	 objects[PLAYER]->addVec(1 * player_lower_width, 1 * player_lower_height, 1);
+	 objects[PLAYER]->addVec(1 * player_lower_width, 2 * player_lower_height, 1);
+	 objects[PLAYER]->addVec(2 * player_lower_width, 2 * player_lower_height, 1);
+	 objects[PLAYER]->addVec(2 * player_lower_width, 1 * player_lower_height, 1);
 
-	 objects[2]->addVec(xres-51, 2, 1);
-	 objects[2]->addVec(xres-51, yres-2, 1);
-	 objects[2]->addVec(xres-1, yres-2, 1);
-	 objects[2]->addVec(xres-1, 2, 1);
+	 //	 Log("%s\n", (objects[PLAYER]->toString()).c_str());
 
-	 objects[3]->addVec(1,yres-51,1);
-	 objects[3]->addVec(1,yres-1,1);
-	 objects[3]->addVec(xres-1,yres-1,1);
-	 objects[3]->addVec(xres-1,yres-51,1);
+	 pos[0] = 200.0;
+	 pos[1] = 200.0;
+	 pos[2] = 0.0;
+	 objects[PLAYER]->setPos(pos);
 
-	 objects[4]->addVec(10, 10, 1);
-	 objects[4]->addVec(10, 100, 1);
-	 objects[4]->addVec(60, 100, 1);
-	 objects[4]->addVec(60, 10, 1);
+	 //	 Log("%s\n", (objects[PLAYER]->toString()).c_str());
+
+	 objects[1]->addVec(1,1,1);
+	 objects[1]->addVec(1,51,1);
+	 objects[1]->addVec(xres-1,51,1);
+	 objects[1]->addVec(xres-1,1,1);
+
+	 objects[2]->addVec(1, 2, 1);
+	 objects[2]->addVec(1, yres-2, 1);
+	 objects[2]->addVec(51, yres-2, 1);
+	 objects[2]->addVec(51, 2, 1);
+
+	 objects[3]->addVec(xres-51, 2, 1);
+	 objects[3]->addVec(xres-51, yres-2, 1);
+	 objects[3]->addVec(xres-1, yres-2, 1);
+	 objects[3]->addVec(xres-1, 2, 1);
+
+	 objects[4]->addVec(1,yres-51,1);
+	 objects[4]->addVec(1,yres-1,1);
+	 objects[4]->addVec(xres-1,yres-1,1);
+	 objects[4]->addVec(xres-1,yres-51,1);
+
+	 for (int i = 0; i < objcnt; i++)
+		  objects[i]->fixVectors();
 
 	 Log("Done with initObjects\n");
 }
@@ -368,8 +383,11 @@ void check_keys(XEvent *e)
 				shift=1;
 				return;
 		  }
-		  if (key == XK_space && jumped == 1)
-				keys[XK_space] = 0;
+		  if (key == XK_space) // doesn't help
+		  {
+				if (jumped == 1)
+					 keys[XK_space] = 0;
+		  }
 	 }
 	 else
 	 {
@@ -383,7 +401,14 @@ void check_keys(XEvent *e)
 
 void physics(void)
 {
-	 int addgrav = 0;
+	 Log("start of physics, jumped = %d\n", jumped);
+	 int addgrav = 1;
+	 //pos[0] = *(objects[PLAYER]->getPos()[0]);
+	 //pos[1] = *(objects[PLAYER]->getPos()[1]);
+	 //pos[2] = *(objects[PLAYER]->getPos()[2]);
+	 //	 pos[0] += vel[0];
+	 //	 pos[1] += vel[1];
+	 //	 pos[2] += vel[2];
 	 //Update position of object using its velocity
 	 /* DEBUG */
 	 /*
@@ -391,9 +416,6 @@ void physics(void)
 		 pos[0], pos[1], vel[0], vel[1]);
 		 */
 	 /* DEBUG */
-	 // move
-	 pos[0] += vel[0];
-	 pos[1] += vel[1];
 	 //Now, update the velocity...
 	 //Check for collision with window edges
 	 // *** i added a small buffer so were not exactly on the edge of the thing
@@ -410,7 +432,7 @@ void physics(void)
 	 }
 	 if (keys[XK_d] || keys[XK_Right])
 	 {
-		  if (pos[0] + 2 + 38.0 >= (float)xres) // right edge
+		  if (pos[0] >= (float)xres) // right edge
 		  {
 				//		  pos[0] = 2.0+38.0; // wrap
 
@@ -422,15 +444,12 @@ void physics(void)
 					 vel[0] += 5;
 				pos[0] += vel[0];
 		  }
-		  if (vel[1] > 0.0)
-				addgrav = 1;
 	 }
 	 if (keys[XK_a] || keys[XK_Left])
 	 {
-		  if (pos[0] - 2 - 38.0 <= 0.0) // on left edge
+		  if (pos[0] <= 0.0) // on left edge
 		  {
 				//		  pos[0] = (float)xres - 38.0 - 2;
-				//gravity not important now
 				//do nothing
 		  }
 		  else
@@ -439,8 +458,6 @@ void physics(void)
 					 vel[0] -= 5;
 				pos[0] += vel[0];
 		  }
-		  if (vel[1] > 0.0)
-				addgrav = 1;
 	 }
 
 	 if (keys[XK_s] || keys[XK_Down])
@@ -455,44 +472,63 @@ void physics(void)
 
 	 if (keys[XK_space])
 	 {
+		  Log("space pressed\n");
 		  if (jumped || vel[1] != 0.0)
 		  {
+				Log("already jumped, doing nothing\n");
 				// already jumped, do nothing
 		  }
-		  else if (pos[1] + 10 - 38.0 >= (float)yres) // top
+		  else if (pos[1] >= (float)yres) // top
 		  {
 				//		  pos[1] = 0.0 + 38.0 + 2;
 				//		  do nothing
 				if (vel[1] > 0.0)
-					 addgrav = 1;
+				{
+					 Log("at top of screen, eliminating upward velocity\n");
+					 vel[1] = 0.0;
+				}
 		  }
 		  else
 		  {
-				vel[1] = 25;
+				Log("adding jump factor and applying to pos[1]\n");
+				vel[1] = 15;
 				pos[1] += vel[1];
-				addgrav = 1;
 		  }
 		  jumped = 1;
 	 }
-	 if (pos[1] - 38.0 + 2 > 0)
+	 if (pos[0] < 50.0)
 	 {
-		  addgrav = 1;
+		  pos[0] = 50.0;
 	 }
-	 if (pos[1] - 38.0 + 2 < 0)
+	 if (pos[1] < 50.0)
 	 {
-		  pos[1] = 36.0;
+		  pos[1] = 50.0;
+		  Log("setting vel[1] = 0.0, physics, 'if (pos[1] < 0)'\n");
 		  vel[1] = 0.0;
 		  addgrav = 0;
 	 }
+	 if (vel[1] < -10000) // concerned about possible issue
+		  vel[1] = 0;
 	 //Apply gravity
-	 if (addgrav)
+	 if (addgrav == 1 && pos[1] > 52.5)
 	 {
 		  vel[1] -= 2.5;
+//		  pos[1] += vel[1];
 	 }
 	 if (vel[0] > 0)
 		  vel[0] -= 1;
 	 else if (vel[0] < 0)
 		  vel[0] += 1;
+	 Log("\npreapplying velocity\npos[0] = %f\npos[1] = %f\npos[2] = %f\n", pos[0], pos[1], pos[2]);
+	 Log("vel[0] = %f\nvel[1] = %f\nvel[2] = %f\n", vel[0], vel[1], vel[2]);
+
+	 pos[0]+=vel[0];
+	 pos[1]+=vel[1];
+//	 pos[2]+=vel[2];
+	 //	 objects[PLAYER]->setPos(pos);
+	 objects[PLAYER]->shift(vel);
+
+	 Log("post:\npos[0] = %f\npos[1] = %f\npos[2] = %f\n", pos[0], pos[1], pos[2]);
 }
 
 void putObj(int &i)
@@ -502,25 +538,29 @@ void putObj(int &i)
 	 glBegin(GL_POLYGON);
 	 while ((objects[i]->getVert(j)) != 0)
 	 {
-		  Log("\ngetting object[%d] vertex %d\n", i, j);
-		  Log("vertex = <%f, %f, %f>\n", (objects[i]->getVert(j)[0]), (objects[i]->getVert(j)[1]), (objects[i]->getVert(j)[2]));
+		  //		  Log("\ngetting object[%d] vertex %d\n", i, j);
+		  //		  Log("vertex = <%f, %f, %f>\n", (objects[i]->getVert(j)[0]), (objects[i]->getVert(j)[1]), (objects[i]->getVert(j)[2]));
 		  glVertex3f ((objects[i]->getVert(j)[0]), (objects[i]->getVert(j)[1]), (objects[i]->getVert(j)[2]));
 		  j++;
 	 }
 	 glEnd();
 }
 
-void putPlayer(int &i)
+void putPlayer()
 {
 	 int j = 0;
 	 glColor3ub (10, 250, 155);
+//	 pos[0] = *(objects[PLAYER]->getPos()[0]);
+//	 pos[1] = *(objects[PLAYER]->getPos()[1]);
+//	 pos[2] = *(objects[PLAYER]->getPos()[2]);
+	 Log("\nin putPlayer\npos[0] = %f, pos[1] = %f\n", pos[0], pos[1]);
 	 glTranslatef(pos[0], pos[1], pos[2]);
 	 glBegin(GL_POLYGON);
-	 while ((objects[i]->getVert(j)) != 0)
+	 while ((objects[PLAYER]->getVert(j)) != 0)
 	 {
-		  Log("\ngetting player, object[%d], vertex %d\n", i, j);
-		  Log("vertex = <%f, %f, %f>\n", (objects[i]->getVert(j)[0]), (objects[i]->getVert(j)[1]), (objects[i]->getVert(j)[2]));
-		  glVertex3f ((objects[i]->getVert(j)[0]), (objects[i]->getVert(j)[1]), (objects[i]->getVert(j)[2]));
+		  Log("\ngetting player, object[%d], vertex %d\n", PLAYER, j);
+		  Log("vertex = <%f, %f, %f>\n", (objects[PLAYER]->getVert(j)[0]), (objects[PLAYER]->getVert(j)[1]), (objects[PLAYER]->getVert(j)[2]));
+		  glVertex3f ((objects[PLAYER]->getVert(j)[0]), (objects[PLAYER]->getVert(j)[1]), (objects[PLAYER]->getVert(j)[2]));
 		  j++;
 	 }
 	 glEnd();
@@ -528,19 +568,19 @@ void putPlayer(int &i)
 
 void render(void)
 {
-	 Log("in render, objcnt = %d\n", objcnt);
+	 //	 Log("in render, objcnt = %d\n", objcnt);
 	 int i = 0;
 	 glClear(GL_COLOR_BUFFER_BIT);
 	 {
 		  glPushMatrix(); // for data storage on vid card, only beneficial for static(ish) objects supposidly
 
-		  for (i = 0; i < objcnt-1; i++)
+		  for (i = 0; i < PLAYER; i++) // currently does nothing
 				putObj(i);
-		  i=objcnt-1;
-		  
-		  putPlayer(i);
-		  glPopMatrix();
+		  for (i = PLAYER+1; i < objcnt; i++)
+				putObj(i);
+		  putPlayer(); // player needs to be last for translate function to work properly
 
+		  glPopMatrix();
 
 		  glEnd();
 
