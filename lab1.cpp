@@ -274,6 +274,7 @@ void initObjects(void)
 		  objects[2] = new object(); // left wall
 		  objects[3] = new object(); // right wall
 		  objects[4] = new object(); // ceiling
+		  objects[5] = new object(); // a wall?
 	 }
 	 catch (bad_alloc)
 	 {
@@ -285,12 +286,38 @@ void initObjects(void)
 		  printf("An unknown error occured! Exiting\n");
 		  exit(2);
 	 }
-	 Log("about to add verticies to objects\n");
+	 //Log("about to add verticies to objects\n");
 
-	 objects[PLAYER]->addVec(1 * player_lower_width, 1 * player_lower_height, 1);
-	 objects[PLAYER]->addVec(1 * player_lower_width, 2 * player_lower_height, 1);
-	 objects[PLAYER]->addVec(2 * player_lower_width, 2 * player_lower_height, 1);
+	 /*
+		 objects[PLAYER]->addVec(1 * player_lower_width, 1 * player_lower_height, 1);
+		 objects[PLAYER]->addVec(1 * player_lower_width, 2 * player_lower_height, 1);
+		 objects[PLAYER]->addVec(2 * player_lower_width, 2 * player_lower_height, 1);
+		 objects[PLAYER]->addVec(2 * player_lower_width, 1 * player_lower_height, 1);
+		 */
+
+	 /* lower, left */
 	 objects[PLAYER]->addVec(2 * player_lower_width, 1 * player_lower_height, 1);
+	 objects[PLAYER]->addVec(2 * player_lower_width, 2.5 * player_lower_height, 1);
+
+	 /* lower, right */
+	 objects[PLAYER]->addVec(5 * player_lower_width, 2.5 * player_lower_height, 1);
+	 objects[PLAYER]->addVec(5 * player_lower_width, 1 * player_lower_height, 1);
+
+	 /* mid, left */
+	 objects[PLAYER]->addVec(1 * player_lower_width, 2.5 * player_lower_height, 1);
+	 objects[PLAYER]->addVec(1 * player_lower_width, 5.5 * player_lower_height, 1);
+
+	 /* mid, right */
+	 objects[PLAYER]->addVec(6 * player_lower_width, 5.5 * player_lower_height, 1);
+	 objects[PLAYER]->addVec(6 * player_lower_width, 2.5 * player_lower_height, 1);
+
+	 /* upper, left */
+	 objects[PLAYER]->addVec(2.5 * player_lower_width, 5.5 * player_lower_height, 1);
+	 objects[PLAYER]->addVec(2.5 * player_lower_width, 6.5 * player_lower_height, 1);
+
+	 /* upper, right */
+	 objects[PLAYER]->addVec(4.5 * player_lower_width, 6.5 * player_lower_height, 1);
+	 objects[PLAYER]->addVec(4.5 * player_lower_width, 5.5 * player_lower_height, 1);
 
 	 //	 Log("%s\n", (objects[PLAYER]->toString()).c_str());
 
@@ -320,6 +347,11 @@ void initObjects(void)
 	 objects[4]->addVec(1,yres-1,1);
 	 objects[4]->addVec(xres-1,yres-1,1);
 	 objects[4]->addVec(xres-1,yres-51,1);
+
+	 objects[5]->addVec(2*xres/4, 2, 1);
+	 objects[5]->addVec(2*xres/4, 200, 1);
+	 objects[5]->addVec(3*xres/4, 200, 1);
+	 objects[5]->addVec(3*xres/4, 2, 1);
 
 	 for (int i = 0; i < objcnt; i++)
 		  objects[i]->fixVectors();
@@ -403,24 +435,6 @@ void physics(void)
 {
 	 Log("start of physics, jumped = %d\n", jumped);
 	 int addgrav = 1;
-	 //pos[0] = *(objects[PLAYER]->getPos()[0]);
-	 //pos[1] = *(objects[PLAYER]->getPos()[1]);
-	 //pos[2] = *(objects[PLAYER]->getPos()[2]);
-	 //	 pos[0] += vel[0];
-	 //	 pos[1] += vel[1];
-	 //	 pos[2] += vel[2];
-	 //Update position of object using its velocity
-	 /* DEBUG */
-	 /*
-		 printf("\nin phys:\npos[0] = %f\npos[1] = %f\nvel[0] = %f\nvel[1] = %f\n",
-		 pos[0], pos[1], vel[0], vel[1]);
-		 */
-	 /* DEBUG */
-	 //Now, update the velocity...
-	 //Check for collision with window edges
-	 // *** i added a small buffer so were not exactly on the edge of the thing
-	 // for loop, go through a list of objects, check for collision
-	 //
 
 	 if (keys[LEFT_PORTAL_KEY] || keys[XK_z])
 	 {
@@ -434,14 +448,12 @@ void physics(void)
 	 {
 		  if (pos[0] >= (float)xres) // right edge
 		  {
-				//		  pos[0] = 2.0+38.0; // wrap
-
 				// do nothing
 		  }
 		  else
 		  {
-				if (vel[0] < 15)
-					 vel[0] += 5;
+				if (vel[0] < 15.0)
+					 vel[0] += 2.5;
 				pos[0] += vel[0];
 		  }
 	 }
@@ -449,13 +461,12 @@ void physics(void)
 	 {
 		  if (pos[0] <= 0.0) // on left edge
 		  {
-				//		  pos[0] = (float)xres - 38.0 - 2;
 				//do nothing
 		  }
 		  else
 		  {
-				if (vel[0] > -15)
-					 vel[0] -= 5;
+				if (vel[0] > -15.0)
+					 vel[0] -= 2.5;
 				pos[0] += vel[0];
 		  }
 	 }
@@ -475,60 +486,61 @@ void physics(void)
 		  Log("space pressed\n");
 		  if (jumped || vel[1] != 0.0)
 		  {
-				Log("already jumped, doing nothing\n");
+				//Log("already jumped, doing nothing\n");
 				// already jumped, do nothing
 		  }
 		  else if (pos[1] >= (float)yres) // top
 		  {
-				//		  pos[1] = 0.0 + 38.0 + 2;
 				//		  do nothing
 				if (vel[1] > 0.0)
 				{
-					 Log("at top of screen, eliminating upward velocity\n");
+					 //	 Log("at top of screen, eliminating upward velocity\n");
 					 vel[1] = 0.0;
 				}
 		  }
 		  else
 		  {
-				Log("adding jump factor and applying to pos[1]\n");
-				vel[1] = 15;
+				//Log("adding jump factor and applying to pos[1]\n");
+				vel[1] = 25;
 				pos[1] += vel[1];
 		  }
 		  jumped = 1;
 	 }
-	 if (pos[0] < 50.0)
+	 if (pos[0] <= 52.5)
 	 {
 		  pos[0] = 50.0;
 	 }
-	 if (pos[1] < 50.0)
+	 if (pos[1] <= 52.5)
 	 {
 		  pos[1] = 50.0;
-		  Log("setting vel[1] = 0.0, physics, 'if (pos[1] < 0)'\n");
+		  //Log("setting vel[1] = 0.0, physics, 'if (pos[1] < 0)'\n");
 		  vel[1] = 0.0;
 		  addgrav = 0;
 	 }
-	 if (vel[1] < -10000) // concerned about possible issue
-		  vel[1] = 0;
+	 if (vel[1] < -10000.0) // concerned about possible issue
+		  vel[1] = 0.0;
 	 //Apply gravity
-	 if (addgrav == 1 && pos[1] > 52.5)
+	 if (addgrav == 1 && pos[1] >= 52.5)
 	 {
 		  vel[1] -= 2.5;
-//		  pos[1] += vel[1];
+		  //		  pos[1] += vel[1];
 	 }
 	 if (vel[0] > 0)
 		  vel[0] -= 1;
 	 else if (vel[0] < 0)
 		  vel[0] += 1;
-	 Log("\npreapplying velocity\npos[0] = %f\npos[1] = %f\npos[2] = %f\n", pos[0], pos[1], pos[2]);
-	 Log("vel[0] = %f\nvel[1] = %f\nvel[2] = %f\n", vel[0], vel[1], vel[2]);
+	 //	 Log("\npreapplying velocity\npos[0] = %f\npos[1] = %f\npos[2] = %f\n", pos[0], pos[1], pos[2]);
+	 //	 Log("vel[0] = %f\nvel[1] = %f\nvel[2] = %f\n", vel[0], vel[1], vel[2]);
 
 	 pos[0]+=vel[0];
 	 pos[1]+=vel[1];
 	 pos[2]+=vel[2];
-	 	 objects[PLAYER]->setPos(pos);
-	// objects[PLAYER]->shift(vel);
 
-	 Log("post:\npos[0] = %f\npos[1] = %f\npos[2] = %f\n", pos[0], pos[1], pos[2]);
+	 /* both bellow work */
+	 objects[PLAYER]->setPos(pos);
+	 // objects[PLAYER]->shift(vel);
+
+	 //	 Log("post:\npos[0] = %f\npos[1] = %f\npos[2] = %f\n", pos[0], pos[1], pos[2]);
 }
 
 void putObj(int &i)
@@ -553,13 +565,13 @@ void putPlayer()
 	 pos[0] = (objects[PLAYER]->getPos()[0][0]);
 	 pos[1] = (objects[PLAYER]->getPos()[0][1]);
 	 pos[2] = (objects[PLAYER]->getPos()[0][2]);
-	 Log("\nin putPlayer\npos[0] = %f, pos[1] = %f\n", pos[0], pos[1]);
+	 //	 Log("\nin putPlayer\npos[0] = %f, pos[1] = %f\n", pos[0], pos[1]);
 	 glTranslatef(pos[0], pos[1], pos[2]);
-	 glBegin(GL_POLYGON);
+	 glBegin(GL_QUADS);
 	 while ((objects[PLAYER]->getVert(j)) != 0)
 	 {
-		  Log("\ngetting player, object[%d], vertex %d\n", PLAYER, j);
-		  Log("vertex = <%f, %f, %f>\n", (objects[PLAYER]->getVert(j)[0]), (objects[PLAYER]->getVert(j)[1]), (objects[PLAYER]->getVert(j)[2]));
+		  //		  Log("\ngetting player, object[%d], vertex %d\n", PLAYER, j);
+		  //		  Log("vertex = <%f, %f, %f>\n", (objects[PLAYER]->getVert(j)[0]), (objects[PLAYER]->getVert(j)[1]), (objects[PLAYER]->getVert(j)[2]));
 		  glVertex3f ((objects[PLAYER]->getVert(j)[0]), (objects[PLAYER]->getVert(j)[1]), (objects[PLAYER]->getVert(j)[2]));
 		  j++;
 	 }
