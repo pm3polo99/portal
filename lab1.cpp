@@ -165,13 +165,15 @@ void cleanupObjects()
 
 void reshape_window(int width, int height)
 {
-	 //window has been resized.
 	 setup_screen_res(width, height);
-	 //
+	 //window has been resized.
+	 GLint mv [4];
+	 glGetIntegerv(GL_VIEWPORT, mv);
+	 Log("in reshape window\ngot %d x %d for width and height\n", mv[2], mv[3]);
 	 glViewport(0, 0, (GLint)width, (GLint)height);
 	 glMatrixMode(GL_PROJECTION); glLoadIdentity();
 	 glMatrixMode(GL_MODELVIEW); glLoadIdentity();
-	 glOrtho(0, xres, 0, yres, -1, 1);
+	 glOrtho(0, width, 0, height, -1, 1);
 	 set_title();
 }
 
@@ -275,6 +277,14 @@ void initObjects(void)
 		  objects[3] = new object(); // right wall
 		  objects[4] = new object(); // ceiling
 		  objects[5] = new object(); // a wall?
+		  /*
+			  objects[GUN] = new object();
+			  objects[2] = new object(); // floor
+			  objects[3] = new object(); // left wall
+			  objects[4] = new object(); // right wall
+			  objects[5] = new object(); // ceiling
+			  objects[6] = new object(); // a wall?
+			  */
 	 }
 	 catch (bad_alloc)
 	 {
@@ -288,45 +298,43 @@ void initObjects(void)
 	 }
 	 //Log("about to add verticies to objects\n");
 
-	 /*
-		 objects[PLAYER]->addVec(1 * player_lower_width, 1 * player_lower_height, 1);
-		 objects[PLAYER]->addVec(1 * player_lower_width, 2 * player_lower_height, 1);
-		 objects[PLAYER]->addVec(2 * player_lower_width, 2 * player_lower_height, 1);
-		 objects[PLAYER]->addVec(2 * player_lower_width, 1 * player_lower_height, 1);
-		 */
-
 	 /* lower, left */
-	 objects[PLAYER]->addVec(2 * player_lower_width, 1 * player_lower_height, 1);
-	 objects[PLAYER]->addVec(2 * player_lower_width, 2.5 * player_lower_height, 1);
+	 objects[PLAYER]->addVec(2 * player_width, 1 * player_height, 1);
+	 objects[PLAYER]->addVec(2 * player_width, 2.5 * player_height, 1);
 
 	 /* lower, right */
-	 objects[PLAYER]->addVec(5 * player_lower_width, 2.5 * player_lower_height, 1);
-	 objects[PLAYER]->addVec(5 * player_lower_width, 1 * player_lower_height, 1);
+	 objects[PLAYER]->addVec(5 * player_width, 2.5 * player_height, 1);
+	 objects[PLAYER]->addVec(5 * player_width, 1 * player_height, 1);
 
 	 /* mid, left */
-	 objects[PLAYER]->addVec(1 * player_lower_width, 2.5 * player_lower_height, 1);
-	 objects[PLAYER]->addVec(1 * player_lower_width, 5.5 * player_lower_height, 1);
+	 objects[PLAYER]->addVec(1 * player_width, 2.5 * player_height, 1);
+	 objects[PLAYER]->addVec(1 * player_width, 5.5 * player_height, 1);
 
 	 /* mid, right */
-	 objects[PLAYER]->addVec(6 * player_lower_width, 5.5 * player_lower_height, 1);
-	 objects[PLAYER]->addVec(6 * player_lower_width, 2.5 * player_lower_height, 1);
+	 objects[PLAYER]->addVec(6 * player_width, 5.5 * player_height, 1);
+	 objects[PLAYER]->addVec(6 * player_width, 2.5 * player_height, 1);
 
 	 /* upper, left */
-	 objects[PLAYER]->addVec(2.5 * player_lower_width, 5.5 * player_lower_height, 1);
-	 objects[PLAYER]->addVec(2.5 * player_lower_width, 6.5 * player_lower_height, 1);
+	 objects[PLAYER]->addVec(2.5 * player_width, 5.5 * player_height, 1);
+	 objects[PLAYER]->addVec(2.5 * player_width, 6.5 * player_height, 1);
 
 	 /* upper, right */
-	 objects[PLAYER]->addVec(4.5 * player_lower_width, 6.5 * player_lower_height, 1);
-	 objects[PLAYER]->addVec(4.5 * player_lower_width, 5.5 * player_lower_height, 1);
-
-	 //	 Log("%s\n", (objects[PLAYER]->toString()).c_str());
+	 objects[PLAYER]->addVec(4.5 * player_width, 6.5 * player_height, 1);
+	 objects[PLAYER]->addVec(4.5 * player_width, 5.5 * player_height, 1);
 
 	 pos[0] = 200.0;
 	 pos[1] = 200.0;
 	 pos[2] = 0.0;
-	 objects[PLAYER]->setPos(pos);
+	 objects[PLAYER]->setPos(pos[0], pos[1], pos[2]);
 
-	 //	 Log("%s\n", (objects[PLAYER]->toString()).c_str());
+	 /*
+		 objects[GUN]->addVec(0, 0, 1);
+		 objects[GUN]->addVec(0, gun_height, 1);
+		 objects[GUN]->addVec(gun_width, gun_height, 1);
+		 objects[GUN]->addVec(gun_width, 0, 1);
+		 */
+
+	 //objects[GUN]->setPos(pos);
 
 	 objects[1]->addVec(1,1,1);
 	 objects[1]->addVec(1,51,1);
@@ -354,7 +362,10 @@ void initObjects(void)
 	 objects[5]->addVec(3*xres/4, 2, 1);
 
 	 for (int i = 0; i < objcnt; i++)
+	 {
 		  objects[i]->fixVectors();
+		  objects[i]->setEdges();
+	 }
 
 	 Log("Done with initObjects\n");
 }
@@ -436,6 +447,14 @@ void physics(void)
 	 Log("start of physics, jumped = %d\n", jumped);
 	 int addgrav = 1;
 
+	 Log("\nobjects[PLAYER]->getEdge(LEFT) = %.2f\n", objects[PLAYER]->getEdge(LEFT));
+	 Log("objects[PLAYER]->getEdge(RIGHT) = %.2f\n", objects[PLAYER]->getEdge(RIGHT));
+	 Log("objects[PLAYER]->getEdge(TOP) = %.2f\n", objects[PLAYER]->getEdge(TOP));
+	 Log("objects[PLAYER]->getEdge(BOTTOM) = %.2f\n\n", objects[PLAYER]->getEdge(BOTTOM));
+
+	 pos[0] = objects[PLAYER]->getPos()[0][0];
+	 pos[1] = objects[PLAYER]->getPos()[0][1];
+	 pos[2] = objects[PLAYER]->getPos()[0][2];
 	 if (keys[LEFT_PORTAL_KEY] || keys[XK_z])
 	 {
 		  /* create a portal */
@@ -446,20 +465,22 @@ void physics(void)
 	 }
 	 if (keys[XK_d] || keys[XK_Right])
 	 {
-		  if (pos[0] >= (float)xres) // right edge
+		  if ((objects[PLAYER]->getEdge(RIGHT)) >= (float)xres) // right edge
 		  {
 				// do nothing
 		  }
 		  else
 		  {
 				if (vel[0] < 15.0)
+				{
 					 vel[0] += 2.5;
+				}
 				pos[0] += vel[0];
 		  }
 	 }
 	 if (keys[XK_a] || keys[XK_Left])
 	 {
-		  if (pos[0] <= 0.0) // on left edge
+		  if ((objects[PLAYER]->getEdge(LEFT)) <= 0.0) // on left edge
 		  {
 				//do nothing
 		  }
@@ -467,7 +488,7 @@ void physics(void)
 		  {
 				if (vel[0] > -15.0)
 					 vel[0] -= 2.5;
-				pos[0] += vel[0];
+				//			pos[0] += vel[0];
 		  }
 	 }
 
@@ -489,7 +510,7 @@ void physics(void)
 				//Log("already jumped, doing nothing\n");
 				// already jumped, do nothing
 		  }
-		  else if (pos[1] >= (float)yres) // top
+		  else if ((objects[PLAYER]->getEdge(TOP)) >= (float)yres) // top
 		  {
 				//		  do nothing
 				if (vel[1] > 0.0)
@@ -503,42 +524,56 @@ void physics(void)
 				//Log("adding jump factor and applying to pos[1]\n");
 				vel[1] = 25;
 				pos[1] += vel[1];
+				Log("1. vel[1] = %2.f\n", vel[1]);
 		  }
 		  jumped = 1;
 	 }
+	 Log("2. vel[1] = %2.f\n", vel[1]);
 	 if (pos[0] <= 52.5)
 	 {
 		  pos[0] = 50.0;
 	 }
-	 if (pos[1] <= 52.5)
+	 Log("3. vel[1] = %2.f\n", vel[1]);
+	 if (pos[1] < 52.5)
 	 {
 		  pos[1] = 50.0;
 		  //Log("setting vel[1] = 0.0, physics, 'if (pos[1] < 0)'\n");
 		  vel[1] = 0.0;
 		  addgrav = 0;
 	 }
+	 Log("4. vel[1] = %2.f\n", vel[1]);
 	 if (vel[1] < -10000.0) // concerned about possible issue
 		  vel[1] = 0.0;
+	 Log("5. vel[1] = %2.f\n", vel[1]);
 	 //Apply gravity
 	 if (addgrav == 1 && pos[1] >= 52.5)
 	 {
 		  vel[1] -= 2.5;
 		  //		  pos[1] += vel[1];
 	 }
+	 Log("6. vel[1] = %2.f\n", vel[1]);
 	 if (vel[0] > 0)
 		  vel[0] -= 1;
 	 else if (vel[0] < 0)
 		  vel[0] += 1;
+	 Log("7. vel[1] = %2.f\n", vel[1]);
 	 //	 Log("\npreapplying velocity\npos[0] = %f\npos[1] = %f\npos[2] = %f\n", pos[0], pos[1], pos[2]);
 	 //	 Log("vel[0] = %f\nvel[1] = %f\nvel[2] = %f\n", vel[0], vel[1], vel[2]);
 
-	 pos[0]+=vel[0];
-	 pos[1]+=vel[1];
-	 pos[2]+=vel[2];
+	 //pos[0]+=vel[0];
+	 //pos[1]+=vel[1];
+	 //pos[2]+=vel[2];
 
+	 /* stop seizing */
+	 if (vel[0] > 0.0 && vel[0] < 1.0)
+	 {
+		  vel[0] = 0.0;
+	 }
 	 /* both bellow work */
-	 objects[PLAYER]->setPos(pos);
-	 // objects[PLAYER]->shift(vel);
+	 //objects[PLAYER]->setPos(pos);
+	 Log("\nin physics, about to shift by x = %.2f, y = %.2f\n", vel[0], vel[1]);
+	 objects[PLAYER]->shift(vel[0], vel[1], vel[2]);
+	 Log("8. vel[1] = %2.f\n", vel[1]);
 
 	 //	 Log("post:\npos[0] = %f\npos[1] = %f\npos[2] = %f\n", pos[0], pos[1], pos[2]);
 }
@@ -586,10 +621,14 @@ void render(void)
 	 {
 		  glPushMatrix(); // for data storage on vid card, only beneficial for static(ish) objects supposidly
 
-		  for (i = 0; i < PLAYER; i++) // currently does nothing
+		  for (i = 0; i < PLAYER; i++)
+		  {
 				putObj(i);
+		  }
 		  for (i = PLAYER+1; i < objcnt; i++)
+		  {
 				putObj(i);
+		  }
 		  putPlayer(); // player needs to be last for translate function to work properly
 
 		  glPopMatrix();

@@ -9,12 +9,22 @@ static const float gravity = -0.5f;
 #define ALPHA 1
 #define LEFT 0
 #define RIGHT 1
+#define TOP 2
+#define BOTTOM 3
 #define LEFT_PORTAL_KEY 46
 #define RIGHT_PORTAL_KEY 47
 #define PLAYER 0
-static const int player_lower_width = 15;
-static const int player_lower_height = 20;
-static const int player_upper_width = 30;
-static const int player_upper_height = 40;
+#define GUN 1
+
+static const float player_width = 15.0;
+static const float player_height = 20.0;
+
+static const float gun_width = 11.0;
+static const float gun_height = 7.0;
+
+static const int min_width = 300;
+static const int min_height = 200;
+static const int max_width = 800;
+static const int max_height = 600;
 
 #endif // const.h

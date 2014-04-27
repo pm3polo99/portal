@@ -48,27 +48,27 @@ class object
 {
 	 protected:
 		  Vec pos;
-		  int portable;
+		  int portalable;
 		  vec_list * head;
 		  Vec n; // normal unit vector of object
 		  Vec d; // directional unit vector of object. always normal to n
 		  int deadly;
+		  float edges[4];
 
 	 public:
 		  object (const object&);
-		  object (const Vec p = zero_vec, const int able = 0, vec_list * vl = 0);
+		  object ();
 		  ~object();
 		  vec_list * initNode(void);
+		  void setEdges(void);
+		  float getEdge(const int &);
+		  void shiftEdges(const float &, const float &, const float &);
 		  void setD (const float &, const float &, const float &);
 		  void setN (const float &, const float &, const float &);
-		  void setD(const Vec&);
-		  void setN(const Vec&);
 		  Vec * getN(void);
 		  Vec * getD(void);
 		  Vec * getPos (void);
-		  void getPos (Vec &);
 		  int isPortalable (void);
-		  int getPortable (void);
 		  void setDeadly(const int &);
 		  int isDeadly(void);
 		  vec_list * getHead (void);
@@ -83,18 +83,10 @@ class object
 		  void setD (const Vec *);
 		  void setPos (void);
 		  void setPos (const float &, const float &, const float &);
-		  void setPos (const Vec &);
-		  void setPos (const float [3]);
 		  void setPortalable (const int &a = -1);
-		  void setPortable (const int &a = -1);
 		  void setHead (const vec_list *);
-		  void addVec (const Vec);
-		  void addVert (const Vec);
 		  void addVec (const float&, const float &, const float&);
-		  void addVert (const float &, const float &, const float &);
 		  int isEmpty(void);
-		  void shift (const Vec &);
-		  void shift (const float [3]);
 		  void shift (const float &, const float &, const float &);
 
 		  object& operator = (const object&);

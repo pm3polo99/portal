@@ -8,7 +8,7 @@ object::object (const object& r)
 	 pos[0] = r.pos[0];
 	 pos[1] = r.pos[1];
 	 pos[2] = r.pos[2];
-	 portable = r.portable;
+	 portalable = r.portalable;
 	 n[0] = r.n[0];
 	 n[1] = r.n[1];
 	 n[2] = r.n[2];
@@ -18,24 +18,21 @@ object::object (const object& r)
 	 d[2] = r.n[2];
 	 deadly = r.deadly;
 	 objcnt++;
+	 edges[LEFT] = r.edges[LEFT];
+	 edges[RIGHT] = r.edges[RIGHT];
+	 edges[TOP] = r.edges[TOP];
+	 edges[BOTTOM] = r.edges[BOTTOM];
 	 Log("end of object copy constructor, objcnt now = %d\n", objcnt);
 }
 
-object::object (const Vec p, const int able, vec_list * vl) // acts as default constructor
+object::object () // acts as default constructor
 {
 	 Log("in default object constructor\n");
-	 pos[0] = p[0];
-	 pos[1] = p[1];
-	 pos[2] = p[2];
-	 portable = able;
-	 if (vl == 0)
-	 {
-		  head = initNode();
-	 }
-	 else
-	 {
-		  head = vl;
-	 }
+	 pos[0] = empty_vec[0];
+	 pos[1] = empty_vec[1];
+	 pos[2] = empty_vec[2];
+	 portalable = 0;
+	 head = initNode();
 	 /* both zero vectors - this will serve as a sentinel value when we check to see if we need to set these */
 	 n[0] = 0.0;
 	 n[1] = 0.0;
@@ -45,6 +42,10 @@ object::object (const Vec p, const int able, vec_list * vl) // acts as default c
 	 d[2] = 0.0;
 	 setDeadly(0);
 	 objcnt++;
+	 edges[LEFT] = 0.0;
+	 edges[RIGHT] = 0.0;
+	 edges[TOP] = 0.0;
+	 edges[BOTTOM] = 0.0;
 	 Log("end of object constructor, objcnt now = %d\n", objcnt);
 }
 
@@ -54,7 +55,7 @@ object::~object()
 	 pos[0] = empty_vec[0];
 	 pos[1] = empty_vec[1];
 	 pos[2] = empty_vec[2];
-	 portable = 0;
+	 portalable = 0;
 	 n[0] = 0.0;
 	 n[1] = 0.0;
 	 n[2] = 0.0;
@@ -83,6 +84,53 @@ Vec * object::getPos (void)
 	 return &pos;
 }
 
+void object::setEdges(void)
+{
+	 Log("in setEdges()\n");
+	 vec_list * l = head;
+	 float x_max = pos[0], y_max = pos[1];
+	 float x_min = pos[0], y_min = pos[1];
+	 while (l)
+	 {
+		  if (l->v[0] > x_max)
+		  {
+				x_max = l->v[0];
+		  }
+		  if (l->v[0] < x_min)
+		  {
+				x_min = l->v[0];
+		  }
+		  if (l->v[1] > y_max)
+		  {
+				y_max = l->v[1];
+		  }
+		  if (l->v[1] < y_min)
+		  {
+				y_min = l->v[1];
+		  }
+		  l = l->next;
+	 }
+	 edges[LEFT] = x_min;
+	 edges[RIGHT] = x_max;
+	 edges[TOP] = y_max;
+	 edges[BOTTOM] = y_min;
+	 Log("l, r, t, b:\n%.2f, %.2f, %.2f, %.2f\n", x_min, x_max, y_max, y_min);
+	 Log("e[l], e[r], e[t], e[b]:\n%.2f, %.2f, %.2f, %.2f\n", edges[LEFT], edges[RIGHT], edges[TOP], edges[BOTTOM]);
+}
+
+float object::getEdge(const int &n)
+{
+	 return (edges[n]);
+}
+
+void object::shiftEdges(const float &x, const float &y, const float &z)
+{
+	 edges[LEFT] += x;
+	 edges[RIGHT] += x;
+	 edges[TOP] += y;
+	 edges[BOTTOM] += y;
+}
+
 void object::setD (const float &a, const float &b, const float &c)
 {
 	 d[0] = a;
@@ -97,20 +145,6 @@ void object::setN (const float &a, const float &b, const float &c)
 	 n[2] = c;
 }
 
-void object::setD (const Vec &v)
-{
-	 d[0] = v[0];
-	 d[1] = v[1];
-	 d[2] = v[2];
-}
-
-void object::setN (const Vec &v)
-{
-	 n[0] = v[0];
-	 n[1] = v[1];
-	 n[2] = v[2];
-}
-
 Vec * object::getD(void)
 {
 	 return &d;
@@ -121,21 +155,9 @@ Vec * object::getN(void)
 	 return &n;
 }
 
-void object::getPos (Vec &p)
-{
-	 p[0] = pos[0];
-	 p[1] = pos[1];
-	 p[2] = pos[2];
-}
-
 int object::isPortalable (void)
 {
-	 return portable;
-}
-
-int object::getPortable (void)
-{
-	 return portable;
+	 return portalable;
 }
 
 vec_list * object::getHead (void)
@@ -197,18 +219,15 @@ vec_list * object::getLastVert (void)
 
 void object::makeUnit(Vec * v)
 {
-	 double l = (pow((double)(*v[0]), 2.0) + pow((double)(*v[1]), 2.0) + pow((double)(*v[2]), 2.0));
-	 Log("in makeUnit, l calculated to be %f\n", l);
+	 double l = (pow((double)(v[0][0]), 2.0) + pow((double)(v[0][1]), 2.0) + pow((double)(v[0][2]), 2.0));
 	 if (l != 0.0)
 		  l = sqrt(l);
 	 else
 		  l = 1;
-	 Log("l calculated to be %f, applying to vector components\n", l);
 	 l = 1/l;
-	 *v[0] = (*v[0])*l;
-	 *v[1] = (*v[1])*l;
-	 *v[2] = (*v[2])*l;
-	 Log("<%.2f, %.2f, %.2f>\n", *v[0], *v[1], *v[2]);
+	 v[0][0] = (v[0][0])*l;
+	 v[0][1] = (v[0][1])*l;
+	 v[0][2] = (v[0][2])*l;
 }
 
 string object::toString(void)
@@ -269,72 +288,14 @@ string object::dumpCsv(void)
 
 void object::setPos (void)
 {
-	 Log("in default setPos, setting pos to zero vec\n");
 	 pos[0] = xres/2.0;
 	 pos[1] = yres/2.0;
-	 pos[2] = 0.0;
-	 Log("now pos[0] = %f, pos[1] = %f\n");
+	 pos[2] = 1.0;
 }
 
-void object::setPos (const Vec &p)
-{
-	 Log("in setPos\np[0] = %f, p[1] = %f\n", p[0], p[1]);
-	 if (p[0] < 0.0)
-		  pos[0] = 0.0;
-	 else
-		  pos[0] = (p[0]);
-	 if (p[1] < 0.0)
-		  pos[1] = 0.0;
-	 else
-		  pos[1] = (p[1]);
-	 if (p[2] < 0.0)
-		  pos[2] = 0.0;
-	 else
-		  pos[2] = (p[2]);
-	 Log("now pos[0] = %f, pos[1] = %f\n");
-	 /* shift image's position with position */
-	 /*
-	 vec_list * t = head;
-	 while (t != 0)
-	 {
-		  t->v[0] += p[0];
-		  t->v[1] += p[1];
-		  t->v[2] += p[2];
-		  t = t->next;
-	 }
-	 */
-}
-void object::setPos (const float p[3])
-{
-	 Log("in setPos\np[0] = %f, p[1] = %f\n", p[0], p[1]);
-	 if (p[0] < 0.0)
-		  pos[0] = 0.0;
-	 else
-		  pos[0] = (p[0]);
-	 if (p[1] < 0.0)
-		  pos[1] = 0.0;
-	 else
-		  pos[1] = (p[1]);
-	 if (p[2] < 0.0)
-		  pos[2] = 0.0;
-	 else
-		  pos[2] = (p[2]);
-	 Log("now pos[0] = %f, pos[1] = %f\n");
-	 /* shift image's position with position */
-	 /*
-	 vec_list * t = head;
-	 while (t != 0)
-	 {
-		  t->v[0] += p[0];
-		  t->v[1] += p[1];
-		  t->v[2] += p[2];
-		  t = t->next;
-	 }
-	 */
-}
 void object::setPos (const float &x, const float &y, const float &z)
 {
-	 Log("in setPos\nx = %f, y = %f\n", x, y);
+	 shiftEdges(x, y, z);
 	 if (x < 0.0)
 		  pos[0] = 0.0;
 	 else
@@ -347,41 +308,17 @@ void object::setPos (const float &x, const float &y, const float &z)
 		  pos[2] = 0.0;
 	 else
 		  pos[2] = z;
-	 Log("now pos[0] = %f, pos[1] = %f\n");
-	 /* shift image's position with position */
-	 /*
-	 vec_list * t = head;
-	 while (t != 0)
-	 {
-		  t->v[0] += x;
-		  t->v[1] += y;
-		  t->v[2] += z;
-		  t = t->next;
-	 }
-	 */
-}
-
-void object::setPortable (const int &a)
-{
-	 if (a != 1 && a != 0)
-	 {
-		  TOGGLE(portable);
-	 }
-	 else
-	 {
-		  portable = a;
-	 }
 }
 
 void object::setPortalable (const int &a)
 {
 	 if (a != 1 && a != 0)
 	 {
-		  TOGGLE(portable);
+		  TOGGLE(portalable);
 	 }
 	 else
 	 {
-		  portable = a;
+		  portalable = a;
 	 }
 }
 
@@ -411,67 +348,6 @@ void object::setDeadly(const int &a = 1)
 	 deadly = a;
 }
 
-void object::addVert (const Vec p)
-{
-	 if (p == 0)
-		  return;
-	 if (isEmpty()) // no verticies added yet (heads is empty)
-	 {
-		  head->v[0] = p[0];
-		  head->v[1] = p[1];
-		  head->v[2] = p[2];
-		  return;
-	 }
-	 vec_list * a = (vec_list *)malloc(1*sizeof(vec_list));
-	 a->v[0] = p[0];
-	 a->v[1] = p[1];
-	 a->v[2] = p[2];
-	 //				n->next = head; // head insertion
-	 getLastVert()->next = a; // tail insertion
-	 a->next = 0;
-	 return;
-}
-
-void object::addVec (const Vec p)
-{
-	 if (p == 0)
-		  return;
-	 if (isEmpty()) // no verticies added yet (heads is empty)
-	 {
-		  head->v[0] = p[0];
-		  head->v[1] = p[1];
-		  head->v[2] = p[2];
-		  return;
-	 }
-	 vec_list * a = (vec_list *)malloc(1*sizeof(vec_list));
-	 a->v[0] = p[0];
-	 a->v[1] = p[1];
-	 a->v[2] = p[2];
-	 //				n->next = head; // head insertion
-	 getLastVert()->next = a; // tail insertion
-	 a->next = 0;
-	 return;
-}
-
-void object::addVert (const float &x = 0, const float &y = 0, const float &z = 0)
-{
-	 if (isEmpty()) // no verticies added yet (heads is empty)
-	 {
-		  head->v[0] = x;
-		  head->v[1] = y;
-		  head->v[2] = z;
-		  return;
-	 }
-	 vec_list * a = (vec_list *)malloc(1*sizeof(vec_list));
-	 a->v[0] = x;
-	 a->v[1] = y;
-	 a->v[2] = z;
-	 //				n->next = head; // head insertion
-	 getLastVert()->next = a; // tail insertion
-	 a->next = 0;
-	 return;
-}
-
 void object::addVec (const float &x = 0, const float &y = 0, const float &z = 0)
 {
 	 if (isEmpty()) // no verticies added yet (heads is empty)
@@ -491,83 +367,13 @@ void object::addVec (const float &x = 0, const float &y = 0, const float &z = 0)
 	 return;
 }
 
-void object::shift (const Vec &p)
-{
-	 /* shift image's position with position */
-	 /*
-	 vec_list * t = head;
-	 while (t != 0)
-	 {
-		  t->v[0] += (p[0]);
-		  t->v[1] += (p[1]);
-		  t->v[2] += (p[2]);
-		  t = t->next;
-	 }
-	 fixVectors();
-	 */
-	 pos[0] += p[0];
-	 pos[1] += p[1];
-	 pos[2] += p[2];
-}
-
-void object::shift (const float p[3])
-{
-	 /* shift image's position with position */
-	 /*
-	 vec_list * t = head;
-	 while (t != 0)
-	 {
-		  t->v[0] += (p[0]);
-		  t->v[1] += (p[1]);
-		  t->v[2] += (p[2]);
-		  t = t->next;
-	 }
-	 fixVectors();
-	 */
-	 pos[0] += p[0];
-	 pos[1] += p[1];
-	 pos[2] += p[2];
-}
-
 void object::shift (const float &x, const float &y, const float &z)
 {
-	 /* shift image's position with position */
-	 /*
-	 vec_list * t = head;
-	 while (t != 0)
-	 {
-		  t->v[0] += (x);
-		  t->v[1] += (y);
-		  t->v[2] += (z);
-		  t = t->next;
-	 }
-	 fixVectors();
-	 */
+	 shiftEdges(x, y, z);
 	 pos[0] += x;
 	 pos[1] += y;
 	 pos[2] += z;
 }
-
-/*
-void object::shift (const float &x, const float &y, const float &z)
-{
-*/
-	 /* shift image's position with position */
-/*
-	 vec_list * t = head;
-	 while (t != 0)
-	 {
-		  t->v[0] += (x - pos[0]);
-		  t->v[1] += (y - pos[1]);
-		  t->v[2] += (z - pos[2]);
-		  t = t->next;
-	 }
-	 fixVectors();
-	 pos[0] = x;
-	 pos[1] = y;
-	 pos[2] = z;
-}
-*/
 
 void object::fixVectors(void)
 {
@@ -593,30 +399,12 @@ object & object::operator = (const object &r)
 	 pos[0] = r.pos[0];
 	 pos[1] = r.pos[1];
 	 pos[2] = r.pos[2];
-	 portable = r.portable;
-	 /* need to create entire new list of vectors? or not??
-	  *
-	  try
-	  {
-	  head = new vec_list;
-	  }
-	  catch (bad_alloc)
-	  {
-	  cout << "Insufficient memory! Aborting\n";
-	  exit(1);
-	  }
-	  catch (...)
-	  {
-	  cout << "An unknown error occured! Aborting\n";
-	  exit(2);
-	  }
-	  */
+	 portalable = r.portalable;
 	 head = r.head;
 
 	 return (*this);
 }
 
-/* automatically calls object constructor? */
 portal::portal()
 {
 	 objcnt--;
@@ -632,7 +420,6 @@ portal::portal(const portal &r) : object(r)
 	 setDeadly(0);
 }
 
-/* automatically calls object destructor? */
 portal::~portal()
 {
 	 objcnt++;
