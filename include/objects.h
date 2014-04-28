@@ -60,34 +60,33 @@ class object
 		  object ();
 		  ~object();
 		  vec_list * initNode(void);
-		  void setEdges(void);
-		  float getEdge(const int &);
-		  void shiftEdges(const float &, const float &, const float &);
-		  void setD (const float &, const float &, const float &);
-		  void setN (const float &, const float &, const float &);
+
+		  int isEmpty(void);
+		  float * getVert (int);
+		  vec_list * getLastVert (void);
+		  Vec * getPos (void);
 		  Vec * getN(void);
 		  Vec * getD(void);
-		  Vec * getPos (void);
 		  int isPortalable (void);
-		  void setDeadly(const int &);
 		  int isDeadly(void);
-		  vec_list * getHead (void);
-		  float * getVert (int);
-		  void getVert (Vec &, int);
-		  void makeUnit(Vec *);
-		  vec_list * getLastVert (void);
+		  float getEdge(const int &);
+
 		  string toString(void);
 		  string dumpCsv(void);
-		  void fixVectors(void);
-		  void setN (const Vec *);
-		  void setD (const Vec *);
+
+		  void addVec (const float&, const float &, const float&);
 		  void setPos (void);
 		  void setPos (const float &, const float &, const float &);
-		  void setPortalable (const int &a = -1);
-		  void setHead (const vec_list *);
-		  void addVec (const float&, const float &, const float&);
-		  int isEmpty(void);
 		  void shift (const float &, const float &, const float &);
+		  void setHead (const vec_list *);
+		  void setD (const float &, const float &, const float &);
+		  void setN (const float &, const float &, const float &);
+		  void makeUnit(Vec *);
+		  void fixVectors(void);
+		  void setEdges(void);
+		  void shiftEdges(const float &, const float &, const float &);
+		  void setPortalable (const int &a = -1);
+		  void setDeadly(const int &);
 
 		  object& operator = (const object&);
 };

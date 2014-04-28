@@ -25,7 +25,7 @@ object::object (const object& r)
 	 Log("end of object copy constructor, objcnt now = %d\n", objcnt);
 }
 
-object::object () // acts as default constructor
+object::object ()
 {
 	 Log("in default object constructor\n");
 	 pos[0] = empty_vec[0];
@@ -49,6 +49,7 @@ object::object () // acts as default constructor
 	 Log("end of object constructor, objcnt now = %d\n", objcnt);
 }
 
+/* could remove most of this for an optimization if need be */
 object::~object()
 {
 	 Log("in object destructor\n");
@@ -65,6 +66,10 @@ object::~object()
 	 head = initNode();
 	 setDeadly(0);
 	 objcnt--;
+	 edges[LEFT] = 0.0;
+	 edges[RIGHT] = 0.0;
+	 edges[TOP] = 0.0;
+	 edges[BOTTOM] = 0.0;
 	 Log("end of object destructor, objcnt now = %d\n", objcnt);
 }
 
@@ -160,19 +165,11 @@ int object::isPortalable (void)
 	 return portalable;
 }
 
-vec_list * object::getHead (void)
-{
-	 return head;
-}
-
-void object::getVert (Vec &p, int i = 0)
+float * object::getVert (int i = 0)
 {
 	 if (i == 0)
 	 {
-		  p[0] =  head->v[0];
-		  p[1] =  head->v[1];
-		  p[2] =  head->v[2];
-		  return;
+		  return (head->v);
 	 }
 	 vec_list *t = head;
 	 while (i > 0)
@@ -180,28 +177,8 @@ void object::getVert (Vec &p, int i = 0)
 		  t = t->next;
 		  if (t == 0)
 		  {
-				p[0] = empty_vec[0];
-				p[1] = empty_vec[1];
-				p[2] = empty_vec[2];
-				return;
-		  }
-		  i--;
-	 }
-	 p[0] = t->v[0];
-	 p[1] = t->v[1];
-	 p[2] = t->v[2];
-}
-
-float * object::getVert (int i = 0)
-{
-	 if (i == 0)
-		  return (head->v);
-	 vec_list *t = head;
-	 while (i > 0)
-	 {
-		  t = t->next;
-		  if (t == 0)
 				return 0;
+		  }
 		  i--;
 	 }
 	 return (t->v);
@@ -221,9 +198,13 @@ void object::makeUnit(Vec * v)
 {
 	 double l = (pow((double)(v[0][0]), 2.0) + pow((double)(v[0][1]), 2.0) + pow((double)(v[0][2]), 2.0));
 	 if (l != 0.0)
+	 {
 		  l = sqrt(l);
+	 }
 	 else
+	 {
 		  l = 1;
+	 }
 	 l = 1/l;
 	 v[0][0] = (v[0][0])*l;
 	 v[0][1] = (v[0][1])*l;
@@ -236,9 +217,13 @@ string object::toString(void)
 	 oss << "Object pos: (" << pos[0] << ", " << pos[1] << ", " << pos[2] << ")" << endl;
 	 oss << "Object portalable? ";
 	 if (isPortalable())
+	 {
 		  oss << "True\n";
+	 }
 	 else
+	 {
 		  oss << "False\n";
+	 }
 	 oss << "Object Veriticies:\n";
 	 vec_list * t = head;
 	 while (t != 0)
@@ -254,13 +239,22 @@ string object::toString(void)
 	 oss << endl;
 	 oss << "Object is deadly?\n";
 	 if (isDeadly())
+	 {
 		  oss << "True\n";
+	 }
 	 else
+	 {
 		  oss << "False\n";
+	 }
+	 oss << "Object edges:\n(0 - Left, 1 - Right, 2 - Top, 3 - Bottom)\n";
+	 for (int i = 0; i < 4; i++)
+	 {
+		  oss << "\tEdge " << i << ": " << edges[i] << endl;
+	 }
 	 return oss.str();
 }
 
-// position vector, isPortalable, verticies, normal vector, directional vector, isDeadly
+// position vector, isPortalable, verticies, normal vector, directional vector, isDeadly, edges
 string object::dumpCsv(void)
 {
 	 ostringstream oss;
@@ -274,17 +268,13 @@ string object::dumpCsv(void)
 	 oss << n[0] << "," << n[1] << "," << n[2] << ",";
 	 oss << d[0] << "," << d[1] << "," << d[2] << ",";
 	 oss << isDeadly();
+	 for (int i = 0; i < 4; i++)
+	 {
+		  oss << "," << edges[i];
+	 }
 	 oss << endl;
 	 return oss.str();
 }
-
-// mutators
-/* HERE
- * need to account for object edges being outside of boundaries of arena
- * maybe try to shift all vectors first, then, if no collision (with xres, yres, zres), shift pos?
- * if collision, undo all changes?
- * or keep a max width of the object?
- */
 
 void object::setPos (void)
 {
@@ -297,17 +287,29 @@ void object::setPos (const float &x, const float &y, const float &z)
 {
 	 shiftEdges(x, y, z);
 	 if (x < 0.0)
+	 {
 		  pos[0] = 0.0;
+	 }
 	 else
+	 {
 		  pos[0] = x;
+	 }
 	 if (y < 0.0)
+	 {
 		  pos[1] = 0.0;
+	 }
 	 else
+	 {
 		  pos[1] = y;
+	 }
 	 if (z < 0.0)
+	 {
 		  pos[2] = 0.0;
+	 }
 	 else
+	 {
 		  pos[2] = z;
+	 }
 }
 
 void object::setPortalable (const int &a)
@@ -325,16 +327,22 @@ void object::setPortalable (const int &a)
 void object::setHead (const vec_list * p = 0)
 {
 	 if (p == 0)
+	 {
 		  return;
+	 }
 	 head = (vec_list *)p;
 }
 
 int object::isEmpty(void)
 {
 	 if (head == 0)
+	 {
 		  return 1;
+	 }
 	 if (head->v[0] == empty_vec[0] && head->v[1] == empty_vec[1] && head->v[2] == empty_vec[2])
+	 {
 		  return 2;
+	 }
 	 return 0;
 }
 
@@ -348,7 +356,7 @@ void object::setDeadly(const int &a = 1)
 	 deadly = a;
 }
 
-void object::addVec (const float &x = 0, const float &y = 0, const float &z = 0)
+void object::addVec (const float &x = 0.0, const float &y = 0.0, const float &z = 0.0)
 {
 	 if (isEmpty()) // no verticies added yet (heads is empty)
 	 {
@@ -361,8 +369,7 @@ void object::addVec (const float &x = 0, const float &y = 0, const float &z = 0)
 	 a->v[0] = x;
 	 a->v[1] = y;
 	 a->v[2] = z;
-	 //				n->next = head; // head insertion
-	 getLastVert()->next = a; // tail insertion
+	 getLastVert()->next = a;
 	 a->next = 0;
 	 return;
 }
@@ -401,7 +408,6 @@ object & object::operator = (const object &r)
 	 pos[2] = r.pos[2];
 	 portalable = r.portalable;
 	 head = r.head;
-
 	 return (*this);
 }
 
@@ -443,9 +449,13 @@ string portal::toString(void)
 	 oss << object::toString();
 	 oss << "Is placed?\n\t";
 	 if (isPlaced())
+	 {
 		  oss << "Yes\n";
+	 }
 	 else
+	 {
 		  oss << "No\n";
+	 }
 	 oss << endl;
 	 return oss.str();
 }
