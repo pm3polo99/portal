@@ -48,6 +48,7 @@ class object
 {
 	 protected:
 		  Vec pos;
+		  Vec vel;
 		  int portalable;
 		  vec_list * head;
 		  Vec n; // normal unit vector of object
@@ -64,6 +65,8 @@ class object
 		  int isEmpty (void);
 		  float * getVert (int);
 		  vec_list * getLastVert (void);
+		  Vec * getVel (void);
+		  void setVel(const float &, const float &, const float &);
 		  Vec * getPos (void);
 		  Vec * getN (void);
 		  Vec * getD (void);

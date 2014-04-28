@@ -22,6 +22,9 @@ object::object (const object& r)
 	 edges[RIGHT] = r.edges[RIGHT];
 	 edges[TOP] = r.edges[TOP];
 	 edges[BOTTOM] = r.edges[BOTTOM];
+	 vel[0] = r.vel[0];
+	 vel[1] = r.vel[1];
+	 vel[2] = r.vel[2];
 	 Log("end of object copy constructor, objcnt now = %d\n", objcnt);
 }
 
@@ -46,6 +49,9 @@ object::object ()
 	 edges[RIGHT] = 0.0;
 	 edges[TOP] = 0.0;
 	 edges[BOTTOM] = 0.0;
+	 vel[0] = zero_vec[0];
+	 vel[1] = zero_vec[1];
+	 vel[2] = zero_vec[2];
 	 Log("end of object constructor, objcnt now = %d\n", objcnt);
 }
 
@@ -70,6 +76,9 @@ object::~object()
 	 edges[RIGHT] = 0.0;
 	 edges[TOP] = 0.0;
 	 edges[BOTTOM] = 0.0;
+	 vel[0] = zero_vec[0];
+	 vel[1] = zero_vec[1];
+	 vel[2] = zero_vec[2];
 	 Log("end of object destructor, objcnt now = %d\n", objcnt);
 }
 
@@ -87,6 +96,11 @@ vec_list * object::initNode(void)
 Vec * object::getPos (void)
 {
 	 return &pos;
+}
+
+Vec * object::getVel (void)
+{
+	 return &vel;
 }
 
 void object::setEdges(void)
@@ -204,6 +218,13 @@ vec_list * object::getLastVert (void)
 	 return t;
 }
 
+void object::setVel(const float &x, const float &y, const float &z)
+{
+	 vel[0] = x;
+	 vel[1] = y;
+	 vel[2] = z;
+}
+
 void object::makeUnit(Vec * v)
 {
 	 double l = (pow((double)(v[0][0]), 2.0) + pow((double)(v[0][1]), 2.0) + pow((double)(v[0][2]), 2.0));
@@ -261,6 +282,8 @@ string object::toString(void)
 	 {
 		  oss << "\tEdge " << i << ": " << edges[i] << endl;
 	 }
+	 oss << "Object velocity:\n";
+	 oss << "\t<" << vel[0] << ", " << vel[1] << ", " << vel[2] << ">\n";
 	 return oss.str();
 }
 
@@ -282,6 +305,7 @@ string object::dumpCsv(void)
 	 {
 		  oss << "," << edges[i];
 	 }
+	 oss << "," << vel[0] << "," << vel[1] << "," << vel[2];
 	 oss << endl;
 	 return oss.str();
 }

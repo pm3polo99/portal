@@ -217,13 +217,9 @@ void init()
 	 Log("start of init()\n");
 	 initObjects();
 
-	 /*
-		 portals = new portal*[2];
-		 portals[LEFT] = new portal();
-		 portals[RIGHT] = new portal();
-		 portals[LEFT]->setPos(xres/4, yres/4, 0);
-		 portals[RIGHT]->setPos(xres/2, yres/2, 0);
-		 */
+	 portals = new portal*[2];
+	 portals[LEFT] = new portal();
+	 portals[RIGHT] = new portal();
 
 	 memset(keys, 0, 65536);
 	 Log("end of init\n");
@@ -272,13 +268,6 @@ void initObjects(void)
 	 try
 	 {
 		  objects[PLAYER] = new object(); // person
-		  /*
-			  objects[1] = new object(); // floor
-			  objects[2] = new object(); // left wall
-			  objects[3] = new object(); // right wall
-			  objects[4] = new object(); // ceiling
-			  objects[5] = new object(); // a wall?
-			  */
 		  objects[GUN] = new object();
 		  objects[2] = new object(); // floor
 		  objects[3] = new object(); // left wall
@@ -454,21 +443,21 @@ void physics(void)
 	 Log("start of physics, jumped = %d\n", jumped);
 	 int addgrav = 1;
 
-	 Log("\nobjects[PLAYER]->getEdge(LEFT) = %.2f\n", objects[PLAYER]->getEdge(LEFT));
-	 Log("objects[PLAYER]->getEdge(RIGHT) = %.2f\n", objects[PLAYER]->getEdge(RIGHT));
-	 Log("objects[PLAYER]->getEdge(TOP) = %.2f\n", objects[PLAYER]->getEdge(TOP));
-	 Log("objects[PLAYER]->getEdge(BOTTOM) = %.2f\n\n", objects[PLAYER]->getEdge(BOTTOM));
-
 	 pos[0] = objects[PLAYER]->getPos()[0][0];
 	 pos[1] = objects[PLAYER]->getPos()[0][1];
 	 pos[2] = objects[PLAYER]->getPos()[0][2];
 	 if (keys[LEFT_PORTAL_KEY] || keys[XK_z])
 	 {
-		  /* create a portal */
+		  portals[LEFT] = new portal();
+		  portals[LEFT]->setN(objects[PLAYER]->getN()[0][0], objects[PLAYER]->getN()[0][1], objects[PLAYER]->getN()[0][2]);
+		  portals[LEFT]->setVel(15, 15, 0);
+
 	 }
 	 if (keys[RIGHT_PORTAL_KEY] || keys[XK_x])
 	 {
-		  /* create a portal */
+		  portals[RIGHT] = new portal();
+		  portals[RIGHT]->setN(objects[PLAYER]->getN()[0][0], objects[PLAYER]->getN()[0][1], objects[PLAYER]->getN()[0][2]);
+		  portals[RIGHT]->setVel(15, 15, 0);
 	 }
 	 if (keys[XK_d] || keys[XK_Right])
 	 {
@@ -649,6 +638,50 @@ void putGun()
 	 glEnd();
 }
 
+void putPortal (const int &i)
+{
+	 int j = 0;
+	 if (i == LEFT)
+	 {
+		  glColor3ub (120, 200, 15);
+	 }
+	 else if (i == RIGHT)
+	 {
+		  glColor3ub (90, 7, 150);
+	 }
+	 else
+	 {
+		  glColor3ub (50, 70, 15);
+	 }
+	 pos[0] = (portals[i]->getPos()[0][0]);
+	 pos[1] = (portals[i]->getPos()[0][0]);
+	 pos[2] = (portals[i]->getPos()[0][0]);
+	 //	 Log("\nin putGun\npos[0] = %f, pos[1] = %f\n", pos[0], pos[1]);
+	 glRotatef (makeDegree(objects[GUN]->getNormalAngle()), 0.0, 0.0, 1.0);
+	 glBegin(GL_QUADS);
+	 if (0) // if (collision)
+	 {
+		  while ((portals[i]->getVert(j)) != 0)
+		  {
+				//		  Log("\ngetting gun, object[%d], vertex %d\n", GUN, j);
+				//		  Log("vertex = <%f, %f, %f>\n", (objects[GUN]->getVert(j)[0]), (objects[GUN]->getVert(j)[1]), (objects[GUN]->getVert(j)[2]));
+				glVertex3f ((portals[i]->getVert(j)[0]), (portals[i]->getVert(j)[1]), (portals[i]->getVert(j)[2]));
+				j++;
+		  }
+	 }
+	 else // no collision
+	 {
+		  pos[0] += portals[i]->getVel()[0][0];
+		  pos[1] += portals[i]->getVel()[0][1];
+		  pos[2] += portals[i]->getVel()[0][2];
+		  glVertex3f (0.0, 0.0, 0.0);
+		  glVertex3f (0.0, 5.0, 0.0);
+		  glVertex3f (5.0, 5.0, 0.0);
+		  glVertex3f (5.0, 0.0, 0.0);
+	 }
+	 glEnd();
+}
+
 void render(void)
 {
 	 //	 Log("in render, objcnt = %d\n", objcnt);
@@ -673,6 +706,9 @@ void render(void)
 		  }
 		  putPlayer();
 		  putGun();
+
+//		  putPortal(LEFT);
+//		  putPortal(RIGHT);
 
 		  glPopMatrix();
 
