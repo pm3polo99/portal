@@ -272,19 +272,19 @@ void initObjects(void)
 	 try
 	 {
 		  objects[PLAYER] = new object(); // person
-		  objects[1] = new object(); // floor
-		  objects[2] = new object(); // left wall
-		  objects[3] = new object(); // right wall
-		  objects[4] = new object(); // ceiling
-		  objects[5] = new object(); // a wall?
 		  /*
-			  objects[GUN] = new object();
-			  objects[2] = new object(); // floor
-			  objects[3] = new object(); // left wall
-			  objects[4] = new object(); // right wall
-			  objects[5] = new object(); // ceiling
-			  objects[6] = new object(); // a wall?
+			  objects[1] = new object(); // floor
+			  objects[2] = new object(); // left wall
+			  objects[3] = new object(); // right wall
+			  objects[4] = new object(); // ceiling
+			  objects[5] = new object(); // a wall?
 			  */
+		  objects[GUN] = new object();
+		  objects[2] = new object(); // floor
+		  objects[3] = new object(); // left wall
+		  objects[4] = new object(); // right wall
+		  objects[5] = new object(); // ceiling
+		  objects[6] = new object(); // a wall?
 	 }
 	 catch (bad_alloc)
 	 {
@@ -327,45 +327,47 @@ void initObjects(void)
 	 pos[2] = 0.0;
 	 objects[PLAYER]->setPos(pos[0], pos[1], pos[2]);
 
-	 /*
-		 objects[GUN]->addVec(0, 0, 1);
-		 objects[GUN]->addVec(0, gun_height, 1);
-		 objects[GUN]->addVec(gun_width, gun_height, 1);
-		 objects[GUN]->addVec(gun_width, 0, 1);
-		 */
+	 objects[GUN]->addVec(0, 0, 1);
+	 objects[GUN]->addVec(0, gun_height, 1);
+	 objects[GUN]->addVec(gun_width, gun_height, 1);
+	 objects[GUN]->addVec(gun_width, 0, 1);
 
-	 //objects[GUN]->setPos(pos);
+	 objects[GUN]->setPos(pos[0], pos[1], pos[2]);
 
-	 objects[1]->addVec(1,1,1);
-	 objects[1]->addVec(1,51,1);
-	 objects[1]->addVec(xres-1,51,1);
-	 objects[1]->addVec(xres-1,1,1);
+	 objects[2]->addVec(1,1,1);
+	 objects[2]->addVec(1,51,1);
+	 objects[2]->addVec(xres-1,51,1);
+	 objects[2]->addVec(xres-1,1,1);
 
-	 objects[2]->addVec(1, 2, 1);
-	 objects[2]->addVec(1, yres-2, 1);
-	 objects[2]->addVec(51, yres-2, 1);
-	 objects[2]->addVec(51, 2, 1);
+	 objects[3]->addVec(1, 2, 1);
+	 objects[3]->addVec(1, yres-2, 1);
+	 objects[3]->addVec(51, yres-2, 1);
+	 objects[3]->addVec(51, 2, 1);
 
-	 objects[3]->addVec(xres-51, 2, 1);
-	 objects[3]->addVec(xres-51, yres-2, 1);
-	 objects[3]->addVec(xres-1, yres-2, 1);
-	 objects[3]->addVec(xres-1, 2, 1);
+	 objects[4]->addVec(xres-51, 2, 1);
+	 objects[4]->addVec(xres-51, yres-2, 1);
+	 objects[4]->addVec(xres-1, yres-2, 1);
+	 objects[4]->addVec(xres-1, 2, 1);
 
-	 objects[4]->addVec(1,yres-51,1);
-	 objects[4]->addVec(1,yres-1,1);
-	 objects[4]->addVec(xres-1,yres-1,1);
-	 objects[4]->addVec(xres-1,yres-51,1);
+	 objects[5]->addVec(1,yres-51,1);
+	 objects[5]->addVec(1,yres-1,1);
+	 objects[5]->addVec(xres-1,yres-1,1);
+	 objects[5]->addVec(xres-1,yres-51,1);
 
-	 objects[5]->addVec(2*xres/4, 2, 1);
-	 objects[5]->addVec(2*xres/4, 200, 1);
-	 objects[5]->addVec(3*xres/4, 200, 1);
-	 objects[5]->addVec(3*xres/4, 2, 1);
+	 objects[6]->addVec(2*xres/4, 2, 1);
+	 objects[6]->addVec(2*xres/4, 200, 1);
+	 objects[6]->addVec(3*xres/4, 200, 1);
+	 objects[6]->addVec(3*xres/4, 2, 1);
 
 	 for (int i = 0; i < objcnt; i++)
 	 {
-		  objects[i]->fixVectors();
+		  objects[i]->initVectors();
 		  objects[i]->setEdges();
 	 }
+
+	 // player and gun facing right
+	 objects[PLAYER]->invertN();
+	 objects[GUN]->invertN();
 
 	 Log("Done with initObjects\n");
 }
@@ -393,6 +395,11 @@ void check_mouse(XEvent *e)
 		  savex = e->xbutton.x;
 		  savey = e->xbutton.y;
 	 }
+}
+
+float makeDegree(const float & rad)
+{
+	 return ((rad / (2 * pi)) * 360.0);
 }
 
 static int jumped = 0;
@@ -492,14 +499,23 @@ void physics(void)
 		  }
 	 }
 
-	 if (keys[XK_s] || keys[XK_Down])
-	 {
-		  // change aim angle
-	 }
-
 	 if (keys[XK_w] || keys[XK_Up])
 	 {
-		  // change aim angle
+		  Log("up pressed\n");
+		  if (objects[GUN]->getN()[0][1] + 0.015 < 1.5)
+		  {
+				objects[GUN]->shiftN(0.0, 0.015, 0.0);
+		  }
+		  Log("done, angle = %.2f\n", objects[GUN]->getNormalAngle());
+	 }
+
+	 if (keys[XK_s] || keys[XK_Down])
+	 {
+		  Log("down pressed\n");
+		  if (objects[GUN]->getN()[0][1] - 0.015 > -1.5)
+		  {
+				objects[GUN]->shiftN(0.0, -0.015, 0.0);
+		  }
 	 }
 
 	 if (keys[XK_space])
@@ -524,16 +540,13 @@ void physics(void)
 				//Log("adding jump factor and applying to pos[1]\n");
 				vel[1] = 25;
 				pos[1] += vel[1];
-				Log("1. vel[1] = %2.f\n", vel[1]);
 		  }
 		  jumped = 1;
 	 }
-	 Log("2. vel[1] = %2.f\n", vel[1]);
 	 if (pos[0] <= 52.5)
 	 {
 		  pos[0] = 50.0;
 	 }
-	 Log("3. vel[1] = %2.f\n", vel[1]);
 	 if (pos[1] < 52.5)
 	 {
 		  pos[1] = 50.0;
@@ -541,22 +554,24 @@ void physics(void)
 		  vel[1] = 0.0;
 		  addgrav = 0;
 	 }
-	 Log("4. vel[1] = %2.f\n", vel[1]);
 	 if (vel[1] < -10000.0) // concerned about possible issue
+	 {
 		  vel[1] = 0.0;
-	 Log("5. vel[1] = %2.f\n", vel[1]);
+	 }
 	 //Apply gravity
 	 if (addgrav == 1 && pos[1] >= 52.5)
 	 {
 		  vel[1] -= 2.5;
 		  //		  pos[1] += vel[1];
 	 }
-	 Log("6. vel[1] = %2.f\n", vel[1]);
 	 if (vel[0] > 0)
+	 {
 		  vel[0] -= 1;
+	 }
 	 else if (vel[0] < 0)
+	 {
 		  vel[0] += 1;
-	 Log("7. vel[1] = %2.f\n", vel[1]);
+	 }
 	 //	 Log("\npreapplying velocity\npos[0] = %f\npos[1] = %f\npos[2] = %f\n", pos[0], pos[1], pos[2]);
 	 //	 Log("vel[0] = %f\nvel[1] = %f\nvel[2] = %f\n", vel[0], vel[1], vel[2]);
 
@@ -572,7 +587,7 @@ void physics(void)
 	 /* both bellow work */
 	 //objects[PLAYER]->setPos(pos);
 	 Log("\nin physics, about to shift by x = %.2f, y = %.2f\n", vel[0], vel[1]);
-	 objects[PLAYER]->shift(vel[0], vel[1], vel[2]);
+	 objects[PLAYER]->shiftPos(vel[0], vel[1], vel[2]);
 	 Log("8. vel[1] = %2.f\n", vel[1]);
 
 	 //	 Log("post:\npos[0] = %f\npos[1] = %f\npos[2] = %f\n", pos[0], pos[1], pos[2]);
@@ -613,10 +628,33 @@ void putPlayer()
 	 glEnd();
 }
 
+void putGun()
+{
+	 int j = 0;
+	 glColor3ub (50, 70, 15);
+	 pos[0] = (objects[GUN]->getPos()[0][0]);
+	 pos[1] = (objects[GUN]->getPos()[0][1]);
+	 pos[2] = (objects[GUN]->getPos()[0][2]);
+	 //	 Log("\nin putGun\npos[0] = %f, pos[1] = %f\n", pos[0], pos[1]);
+	 glTranslatef(50, 65, 0); // will be relative to last translate call
+	 glRotatef (makeDegree(objects[GUN]->getNormalAngle()), 0.0, 0.0, 1.0);
+	 glBegin(GL_QUADS);
+	 while ((objects[GUN]->getVert(j)) != 0)
+	 {
+		  //		  Log("\ngetting gun, object[%d], vertex %d\n", GUN, j);
+		  //		  Log("vertex = <%f, %f, %f>\n", (objects[GUN]->getVert(j)[0]), (objects[GUN]->getVert(j)[1]), (objects[GUN]->getVert(j)[2]));
+		  glVertex3f ((objects[GUN]->getVert(j)[0]), (objects[GUN]->getVert(j)[1]), (objects[GUN]->getVert(j)[2]));
+		  j++;
+	 }
+	 glEnd();
+}
+
 void render(void)
 {
 	 //	 Log("in render, objcnt = %d\n", objcnt);
 	 int i = 0;
+	 Log("normal angle of PLAYER = %.2f, normal angle of GUN = %.2f\n", objects[PLAYER]->getNormalAngle(), objects[GUN]->getNormalAngle());
+	 Log("directional angle of PLAYER = %.2f, directional angle of GUN = %.2f\n", objects[PLAYER]->getDirectionalAngle(), objects[GUN]->getDirectionalAngle());
 	 glClear(GL_COLOR_BUFFER_BIT);
 	 {
 		  glPushMatrix(); // for data storage on vid card, only beneficial for static(ish) objects supposidly
@@ -625,11 +663,16 @@ void render(void)
 		  {
 				putObj(i);
 		  }
-		  for (i = PLAYER+1; i < objcnt; i++)
+		  for (i = PLAYER+1; i < GUN; i++)
 		  {
 				putObj(i);
 		  }
-		  putPlayer(); // player needs to be last for translate function to work properly
+		  for (i = GUN+1; i < objcnt; i++)
+		  {
+				putObj(i);
+		  }
+		  putPlayer();
+		  putGun();
 
 		  glPopMatrix();
 

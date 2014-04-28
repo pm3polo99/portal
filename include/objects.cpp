@@ -123,6 +123,16 @@ void object::setEdges(void)
 	 Log("e[l], e[r], e[t], e[b]:\n%.2f, %.2f, %.2f, %.2f\n", edges[LEFT], edges[RIGHT], edges[TOP], edges[BOTTOM]);
 }
 
+float object::getNormalAngle(void)
+{
+	 return (atan(n[1]/n[0]));
+}
+
+float object::getDirectionalAngle(void)
+{
+	 return (atan(d[1]/d[0]));
+}
+
 float object::getEdge(const int &n)
 {
 	 return (edges[n]);
@@ -374,7 +384,23 @@ void object::addVec (const float &x = 0.0, const float &y = 0.0, const float &z 
 	 return;
 }
 
-void object::shift (const float &x, const float &y, const float &z)
+void object::shiftD (const float &x, const float &y, const float &z)
+{
+	 d[0] += x;
+	 d[1] += y;
+	 d[2] += z;
+}
+
+void object::shiftN (const float &x, const float &y, const float &z)
+{
+	 Log("In setN, n[1] = %2.f, y = %.2f\n", n[1], y);
+	 n[0] += x;
+	 n[1] += y;
+	 n[2] += z;
+	 Log("done adding y to n, n[1] = %.2f\n", n[1]);
+}
+
+void object::shiftPos (const float &x, const float &y, const float &z)
 {
 	 shiftEdges(x, y, z);
 	 pos[0] += x;
@@ -382,9 +408,23 @@ void object::shift (const float &x, const float &y, const float &z)
 	 pos[2] += z;
 }
 
-void object::fixVectors(void)
+void object::invertD(void)
 {
-	 Log("in fixVectors\n");
+	 d[0] *= (-1.0);
+	 d[1] *= (-1.0);
+	 d[2] *= (-1.0);
+}
+
+void object::invertN(void)
+{
+	 n[0] *= (-1.0);
+	 n[1] *= (-1.0);
+	 n[2] *= (-1.0);
+}
+
+void object::initVectors(void)
+{
+	 Log("in initVectors\n");
 	 Vec a, b, c;
 	 a[0] = getVert(0)[0];
 	 a[1] = getVert(0)[1];

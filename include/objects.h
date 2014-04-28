@@ -58,37 +58,43 @@ class object
 	 public:
 		  object (const object&);
 		  object ();
-		  ~object();
-		  vec_list * initNode(void);
+		  ~object ();
+		  vec_list * initNode (void);
 
-		  int isEmpty(void);
+		  int isEmpty (void);
 		  float * getVert (int);
 		  vec_list * getLastVert (void);
 		  Vec * getPos (void);
-		  Vec * getN(void);
-		  Vec * getD(void);
+		  Vec * getN (void);
+		  Vec * getD (void);
+		  float getNormalAngle (void);
+		  float getDirectionalAngle (void);
 		  int isPortalable (void);
-		  int isDeadly(void);
-		  float getEdge(const int &);
+		  int isDeadly (void);
+		  float getEdge (const int &);
 
-		  string toString(void);
-		  string dumpCsv(void);
+		  string toString (void);
+		  string dumpCsv (void);
 
-		  void addVec (const float&, const float &, const float&);
+		  void addVec (const float &, const float &, const float &);
 		  void setPos (void);
 		  void setPos (const float &, const float &, const float &);
-		  void shift (const float &, const float &, const float &);
+		  void shiftPos (const float &, const float &, const float &);
 		  void setHead (const vec_list *);
-		  void setD (const float &, const float &, const float &);
 		  void setN (const float &, const float &, const float &);
-		  void makeUnit(Vec *);
-		  void fixVectors(void);
-		  void setEdges(void);
-		  void shiftEdges(const float &, const float &, const float &);
+		  void setD (const float &, const float &, const float &);
+		  void shiftN (const float &, const float &, const float &);
+		  void shiftD (const float &, const float &, const float &);
+		  void invertD (void);
+		  void invertN (void);
+		  void makeUnit (Vec *);
+		  void initVectors (void);
+		  void setEdges (void);
+		  void shiftEdges (const float &, const float &, const float &);
 		  void setPortalable (const int &a = -1);
-		  void setDeadly(const int &);
+		  void setDeadly (const int &);
 
-		  object& operator = (const object&);
+		  object& operator = (const object &);
 };
 
 class portal : public object
@@ -99,14 +105,14 @@ class portal : public object
 		  void drawPortal (void); // a rectangle idiot
 
 	 public:
-		  portal();
-		  portal(const portal &);
-		  ~portal();
+		  portal ();
+		  portal (const portal &);
+		  ~portal ();
 
 		  int getIsPlaced (void);
 		  int isPlaced (void);
-		  string toString(void);
-		  string dumpCsv(void);
+		  string toString (void);
+		  string dumpCsv (void);
 
 		  void setIsPlaced (const int &);
 		  void setPlaced (const int &);
@@ -114,5 +120,5 @@ class portal : public object
 
 		  portal& operator = (const portal&);
 
-		  friend bool operator == (const portal&, const portal&);
+		  friend bool operator == (const portal &, const portal &);
 };
