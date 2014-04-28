@@ -502,7 +502,7 @@ void physics(void)
 	 if (keys[XK_w] || keys[XK_Up])
 	 {
 		  Log("up pressed\n");
-		  if (objects[GUN]->getN()[0][1] + 0.015 < 1.5)
+		  if (objects[GUN]->getN()[0][1] + 0.015 <= 1.5)
 		  {
 				objects[GUN]->shiftN(0.0, 0.015, 0.0);
 		  }
@@ -512,7 +512,7 @@ void physics(void)
 	 if (keys[XK_s] || keys[XK_Down])
 	 {
 		  Log("down pressed\n");
-		  if (objects[GUN]->getN()[0][1] - 0.015 > -1.5)
+		  if (objects[GUN]->getN()[0][1] - 0.015 >= -1.5)
 		  {
 				objects[GUN]->shiftN(0.0, -0.015, 0.0);
 		  }
