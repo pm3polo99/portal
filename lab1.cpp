@@ -39,6 +39,7 @@ void check_keys(XEvent *e);
 void init();
 void physics(void);
 void render(void);
+void step();
 
 bool running = true;
 
@@ -47,6 +48,17 @@ Window win;
 GLXContext glc;
 
 int keys[65536];
+
+b2Body * myPlayer;
+b2Body * gameFloor;
+
+enum _moveState {
+	MS_STOP,
+	MS_LEFT,
+	MS_RIGHT,
+};
+
+_moveState moveState = MS_STOP;
 
 int main(void)
 {
@@ -59,6 +71,7 @@ int main(void)
 			XNextEvent(dpy, &e);
 			check_mouse(&e);
 			check_keys(&e);
+			step();
 		}
 		render();
 		world->Step(1.0/30.0,8,3);
@@ -67,7 +80,7 @@ int main(void)
 	return 0;
 }
 
-b2Body* addRect(int x, int y, int w, int h, bool dyn=true)
+b2Body* addRect(int x, int y, int w, int h, int f, bool dyn=true)
 {
 	//bodydef (pos, type)
 
@@ -82,7 +95,26 @@ b2Body* addRect(int x, int y, int w, int h, bool dyn=true)
 	b2FixtureDef fixturedef;
 	fixturedef.shape = &shape;
 	fixturedef.density = 1.0;
+	fixturedef.friction = f;
 	body->CreateFixture(&fixturedef);
+	return body;
+}
+
+b2Body* addPlayer(int x, int y, int w, int h, bool dyn = true)
+{
+	b2BodyDef bodydef;
+	bodydef.position.Set(x*P2M, y*P2M);
+	bodydef.type = b2_dynamicBody;
+	bodydef.gravityScale = 1.0f;
+	b2Body* body = world->CreateBody(&bodydef);
+	b2PolygonShape shape;
+	shape.SetAsBox(P2M*w/2.0,P2M*h/2.0);
+
+	b2FixtureDef fixturedef;
+	fixturedef.shape = &shape;
+	fixturedef.density = 1.0;
+	body->CreateFixture(&fixturedef);
+	return body;
 }
 
 
@@ -92,8 +124,9 @@ void init_opengl(void)
 	glOrtho(0, xres, yres, 0, -1, 1);
 	glMatrixMode(GL_MODELVIEW);
 	glClearColor(0,0,0,1);
-	world=new b2World(b2Vec2(0.0,9.81));
-	addRect(xres/2, yres-50, xres, 30, false);
+	world=new b2World(b2Vec2(0.0,1));
+	gameFloor = addRect(xres/2, yres-50, xres, 30, 0.05, false);
+	myPlayer = addPlayer(50, 50, 40, 40, true);
 }
 
 void check_mouse(XEvent *e)
@@ -105,14 +138,14 @@ void check_mouse(XEvent *e)
 	//
 	if (e->type == ButtonRelease) {
 		//if (e->xbutton.button==1) {
-			//Left button is down
-			addRect(e->xbutton.x, e->xbutton.y, 20, 20, true);
+		//Left button is down
+		addRect(e->xbutton.x, e->xbutton.y, 20, 20, true);
 		//}
 	}
 	if (e->type == ButtonPress) {
 		//if (e->xbutton.button==1) {
-			//Left button is down
-			addRect(e->xbutton.x, e->xbutton.y, 20, 20, true);
+		//Left button is down
+		addRect(e->xbutton.x, e->xbutton.y, 20, 20, true);
 		//}
 		if (e->xbutton.button==3) {
 			//Right button is down
@@ -130,6 +163,7 @@ void check_keys(XEvent *e)
 {
 	static int shift=0;
 	int key = XLookupKeysym(&e->xkey, 0);
+	b2Vec2 vel = myPlayer->GetLinearVelocity();
 	if (e->type == KeyRelease)
 	{
 		keys[key]=0;
@@ -148,9 +182,34 @@ void check_keys(XEvent *e)
 			shift=1;
 			return;
 		}
+		if (key == XK_Left)
+		{
+			//if(vel.x <= 50)
+			//myPlayer->ApplyForce( b2Vec2(-5,0), myPlayer->GetWorldCenter(),true);
+			//moveState = MS_LEFT;
+			vel.x = -1;
+			//myPlayer->SetLinearVelocity( vel );
+		}
+		if (key == XK_Right)
+		{
+			//if(vel.x > -50)
+			//myPlayer->ApplyForce( b2Vec2(5,0), myPlayer->GetWorldCenter(),true);
+			//moveState = MS_RIGHT;
+			vel.x = 1;
+			//myPlayer->SetLinearVelocity( vel );
+		}
 		if (key == XK_space) // doesn't help
 		{
-			addRect(e->xbutton.x, e->xbutton.y, 20, 20, true);
+			//addRect(e->xbutton.x, e->xbutton.y, 20, 20, true);
+			
+			float impulse = myPlayer->GetMass() * 3.5f;
+			myPlayer->ApplyLinearImpulse(b2Vec2(0,-impulse), myPlayer->GetWorldCenter(),true);
+			vel = myPlayer->GetLinearVelocity();			
+			//myPlayer->SetLinearVelocity( vel );
+			return;
+		}
+		if (key == XK_a)
+		{
 			return;
 		}
 	}
@@ -162,7 +221,22 @@ void check_keys(XEvent *e)
 	{
 		// run?
 	}
+	myPlayer->SetLinearVelocity( vel );
+	
+
 }
+
+void step() {
+	b2Vec2 vel = myPlayer->GetLinearVelocity();
+	switch ( moveState )
+	{
+		case MS_LEFT:  vel.x = b2Max( vel.x - 0.01f, -1.0f ); break;
+		case MS_STOP:  vel.x *=  0.98; break;
+		case MS_RIGHT: vel.x = b2Min( vel.x + 0.01f,  1.0f ); break;
+	}
+	myPlayer->SetLinearVelocity( vel );
+}
+
 
 
 void drawSquare(b2Vec2* points, b2Vec2 center, float angle)
@@ -171,6 +245,22 @@ void drawSquare(b2Vec2* points, b2Vec2 center, float angle)
 	glPushMatrix();
 	glTranslatef(center.x*M2P, center.y*M2P, 0);
 	glRotatef(angle*180.0/M_PI, 0, 0, 1);
+	glBegin(GL_QUADS);
+	for(int i = 0; i < 4; i++)
+		glVertex2f(points[i].x*M2P, points[i].y*M2P);
+	glEnd();
+	glPopMatrix();
+}
+
+void drawPlayer()
+{
+	glColor3f(0,1,0);
+	glPushMatrix();
+	glTranslatef(myPlayer->GetWorldCenter().x*M2P, myPlayer->GetWorldCenter().y*M2P, 0);
+	glRotatef(myPlayer->GetAngle()*180.0/M_PI, 0, 0, 1);
+	b2Vec2 points[4];
+	for(int i=0; i < 4; i++)
+		points[i] = ((b2PolygonShape*)myPlayer->GetFixtureList()->GetShape())->GetVertex(i);
 	glBegin(GL_QUADS);
 	for(int i = 0; i < 4; i++)
 		glVertex2f(points[i].x*M2P, points[i].y*M2P);
@@ -191,6 +281,6 @@ void render(void)
 		drawSquare(points, tmp->GetWorldCenter(), tmp->GetAngle());
 		tmp = tmp->GetNext();
 	}
+	drawPlayer();
 	glXSwapBuffers(dpy, win);
 }
-
