@@ -11,7 +11,7 @@
 #include <GL/glx.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include <Box2D/Box2D.h>
+#include "Box2D/Box2D.h"
 
 #include "log.h"
 #include "xwin.h"
@@ -40,12 +40,32 @@ void init();
 void physics(void);
 void render(void);
 void step();
+void check_resize();
+void camera();
+
+//Setup timers
+const double physicsRate = 1.0 / 60.0;
+const double oobillion = 1.0 / 1e9;
+struct timespec timeStart, timeCurrent;
+struct timespec timePause;
+double physicsCountdown=0.0;
+double timeSpan=0.0;
+double timeDiff(struct timespec *start, struct timespec *end) {
+	return (double)(end->tv_sec - start->tv_sec ) +
+		(double)(end->tv_nsec - start->tv_nsec) * oobillion;
+}
+void timeCopy(struct timespec *dest, struct timespec *source) {
+	memcpy(dest, source, sizeof(struct timespec));
+}
+
 
 bool running = true;
 
 Display *dpy;
 Window win;
 GLXContext glc;
+
+bool pauseGame = false;
 
 int keys[65536];
 
@@ -62,25 +82,52 @@ _moveState moveState = MS_STOP;
 
 int main(void)
 {
+	logOpen();
 	running = true;
+	pauseGame = false;
 	initXWindows();
+	XEvent e;
 	init_opengl();
+	srand(time(NULL));
+	clock_gettime(CLOCK_REALTIME, &timePause);
+	clock_gettime(CLOCK_REALTIME, &timeStart);
+
+	XAllowEvents(dpy, AsyncBoth, CurrentTime);
+	XGrabPointer(dpy, win, 1, PointerMotionMask | ButtonPressMask | ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+
 	while(running) {
-		while(XPending(dpy)) {
+		if(!pauseGame){
+			while(XPending(dpy)) {
+				XEvent e;
+				XNextEvent(dpy, &e);
+				check_mouse(&e);
+				check_keys(&e);
+				//step();
+			}
+			clock_gettime(CLOCK_REALTIME, &timeCurrent);
+			timeSpan = timeDiff(&timeStart, &timeCurrent);
+			timeCopy(&timeStart, &timeCurrent);
+			physicsCountdown += timeSpan;
+			while(physicsCountdown >= physicsRate) {
+				physics();
+				physicsCountdown -= physicsRate;
+			}
+			render();
+			world->Step(1.0/30.0,8,3);
+			world->ClearForces();
+		}
+		else if(pauseGame) {
 			XEvent e;
 			XNextEvent(dpy, &e);
-			check_mouse(&e);
 			check_keys(&e);
-			step();
 		}
-		render();
-		world->Step(1.0/30.0,8,3);
 	}
 	cleanupXWindows();
+	logClose();
 	return 0;
 }
 
-b2Body* addRect(int x, int y, int w, int h, int f, bool dyn=true)
+b2Body* addRect(int x, int y, int w, int h, float f = 0.2f, float d = 0.2f, bool dyn=true)
 {
 	//bodydef (pos, type)
 
@@ -88,6 +135,8 @@ b2Body* addRect(int x, int y, int w, int h, int f, bool dyn=true)
 	bodydef.position.Set(x*P2M, y*P2M);
 	if(dyn)
 		bodydef.type=b2_dynamicBody;
+	bodydef.linearDamping = d;
+	bodydef.fixedRotation = false;
 	b2Body* body = world->CreateBody(&bodydef);
 	b2PolygonShape shape;
 	shape.SetAsBox(P2M*w/2.0, P2M*h/2.0);
@@ -106,6 +155,7 @@ b2Body* addPlayer(int x, int y, int w, int h, bool dyn = true)
 	bodydef.position.Set(x*P2M, y*P2M);
 	bodydef.type = b2_dynamicBody;
 	bodydef.gravityScale = 1.0f;
+	bodydef.fixedRotation = true;
 	b2Body* body = world->CreateBody(&bodydef);
 	b2PolygonShape shape;
 	shape.SetAsBox(P2M*w/2.0,P2M*h/2.0);
@@ -117,6 +167,22 @@ b2Body* addPlayer(int x, int y, int w, int h, bool dyn = true)
 	return body;
 }
 
+void addObstacles()
+{
+	//top of floor is yres-50-25 = yres-75
+	float onFloor = yres-75;
+	addRect(800, yres-105, 60, 60, 0.02f, 0.2f, true);//bottomleft of stack
+	addRect(865, yres-105, 60, 60, 0.02f, 0.2f, true);//bottom right
+	addRect(832.5, yres-170, 60, 60, 0.02f, 0.2f, true);//top
+
+	addRect(1200, onFloor-15, 80, 30, 0.7f, 0.2f, false);//top
+	addRect(1280, onFloor-30, 80, 60, 0.7f, 0.2f, false);//top
+	addRect(1360, onFloor-45, 80, 90, 0.7f, 0.2f, false);//top
+	addRect(1440, onFloor-60, 80, 120, 0.7f, 0.2f, false);//top
+	addRect(1520, onFloor-75, 80, 150, 0.7f, 0.2f, false);//top
+
+}
+
 
 void init_opengl(void)
 {
@@ -124,29 +190,33 @@ void init_opengl(void)
 	glOrtho(0, xres, yres, 0, -1, 1);
 	glMatrixMode(GL_MODELVIEW);
 	glClearColor(0,0,0,1);
-	world=new b2World(b2Vec2(0.0,1));
-	gameFloor = addRect(xres/2, yres-50, xres, 30, 0.05, false);
-	myPlayer = addPlayer(50, 50, 40, 40, true);
+	world=new b2World(b2Vec2(0.0,10.0f));
+	gameFloor = addRect(xres*3/2, yres-50, xres*3, 50, 0.7f, 0.2f, false);
+	addRect(0.0f, yres/4-150, 50, yres*2, 0.7f, 0.2f, false);//left wall
+	addRect(xres*3, yres/4-150, 50, yres*2, 0.7f, 0.2f, false);//right wall
+	addObstacles();
+	myPlayer = addPlayer(50, 50, 60, 60, true);
 }
 
 void check_mouse(XEvent *e)
 {
+	//int key = XLookupKeysym(&e->xkey, 0);
 	//Did the mouse move?
 	//Was a mouse button clicked?
 	static int savex = 0;
 	static int savey = 0;
 	//
 	if (e->type == ButtonRelease) {
-		//if (e->xbutton.button==1) {
-		//Left button is down
-		addRect(e->xbutton.x, e->xbutton.y, 20, 20, true);
-		//}
+		if (e->xbutton.button==1) {
+			//Left button is down
+			addRect(e->xbutton.x, e->xbutton.y, 20, 20, true);
+		}
 	}
 	if (e->type == ButtonPress) {
-		//if (e->xbutton.button==1) {
-		//Left button is down
-		addRect(e->xbutton.x, e->xbutton.y, 20, 20, true);
-		//}
+		if (e->xbutton.button==1) {
+			//Left button is down
+			addRect(e->xbutton.x, e->xbutton.y, 20, 20, true);
+		}
 		if (e->xbutton.button==3) {
 			//Right button is down
 			addRect(e->xbutton.x, e->xbutton.y, 20, 20, true);
@@ -163,68 +233,136 @@ void check_keys(XEvent *e)
 {
 	static int shift=0;
 	int key = XLookupKeysym(&e->xkey, 0);
-	b2Vec2 vel = myPlayer->GetLinearVelocity();
-	if (e->type == KeyRelease)
-	{
-		keys[key]=0;
-		if (key == XK_Shift_L || key == XK_Shift_R)
-			shift=0;
-	}
-	if (e->type == KeyPress)
-	{
-		if (key == XK_Escape)
+	if(!pauseGame) {
+		if (e->type == KeyRelease)
 		{
-			running = false;
+			keys[key]=0;
+			if (key == XK_Shift_L || key == XK_Shift_R)
+				shift=0;
+		}
+		if (e->type == KeyPress)
+		{
+			if (key == XK_Escape)
+			{
+				running = false;
+				return;
+			}
+			keys[key]=1;
+			if (key == XK_Shift_L || key == XK_Shift_R) {
+				shift=1;
+				return;
+			}
+			if (key == XK_p)
+			{
+				if(pauseGame)
+					pauseGame = false;
+				else
+					pauseGame = true;
+				return;
+			}
+		}
+		else
+		{
 			return;
 		}
-		keys[key]=1;
-		if (key == XK_Shift_L || key == XK_Shift_R) {
-			shift=1;
-			return;
+		if (shift)
+		{
+			// run?
 		}
-		if (key == XK_Left)
+	}
+	else {
+		if (e->type == KeyPress)
+		{
+			if (key == XK_p)
+			{
+				pauseGame = false;
+				return;
+			}
+		}
+	}
+}
+
+
+void physics (void)
+{
+	if (pauseGame)
+	{
+		/* do nothing */
+	}
+	else
+	{
+		b2Vec2 vel = myPlayer->GetLinearVelocity();
+		if (keys[XK_Up] == 1 || keys[XK_w])
+		{
+			/* rotate gun up */
+		}
+		if (keys[XK_Down] == 1 || keys[XK_s])
+		{
+			/* rotate gun down */
+		}
+		if (keys[XK_Left] == 1 || keys[XK_a])
 		{
 			//if(vel.x <= 50)
 			//myPlayer->ApplyForce( b2Vec2(-5,0), myPlayer->GetWorldCenter(),true);
 			//moveState = MS_LEFT;
-			vel.x = -1;
-			//myPlayer->SetLinearVelocity( vel );
+			if (vel.y == 0.0f)
+			{
+				if (vel.x > -15.0f)
+				{
+					vel.x += -2.5f;
+				}
+				//myPlayer->SetLinearVelocity( vel );
+			}
+			else
+			{
+				if (vel.x > -15.0f)
+				{
+					vel.x += -1.0f;
+				}
+			}
 		}
-		if (key == XK_Right)
+		if (keys[XK_Right] == 1 || keys[XK_d])
 		{
 			//if(vel.x > -50)
 			//myPlayer->ApplyForce( b2Vec2(5,0), myPlayer->GetWorldCenter(),true);
 			//moveState = MS_RIGHT;
-			vel.x = 1;
-			//myPlayer->SetLinearVelocity( vel );
+			if (vel.y == 0.0f)
+			{
+				if (vel.x < 15.0f)
+				{
+					vel.x += 2.5f;
+				}
+				//myPlayer->SetLinearVelocity( vel );
+			}
+			else
+			{
+				if (vel.x < 15.0f)
+				{
+					vel.x += 1.0f;
+				}
+			}
 		}
-		if (key == XK_space) // doesn't help
+		if (keys[XK_space] == 1) // doesn't help
 		{
 			//addRect(e->xbutton.x, e->xbutton.y, 20, 20, true);
-			
-			float impulse = myPlayer->GetMass() * 3.5f;
-			myPlayer->ApplyLinearImpulse(b2Vec2(0,-impulse), myPlayer->GetWorldCenter(),true);
-			vel = myPlayer->GetLinearVelocity();			
-			//myPlayer->SetLinearVelocity( vel );
-			return;
-		}
-		if (key == XK_a)
-		{
-			return;
-		}
-	}
-	else
-	{
-		return;
-	}
-	if (shift)
-	{
-		// run?
-	}
-	myPlayer->SetLinearVelocity( vel );
-	
 
+			if ((myPlayer->GetLinearVelocity()).y == 0.0f)
+			{
+
+				float impulse = myPlayer->GetMass() * 25.0f;
+				myPlayer->ApplyLinearImpulse(b2Vec2(0,-impulse), myPlayer->GetWorldCenter(),true);
+				vel = myPlayer->GetLinearVelocity();
+			}
+		}
+		if(keys[XK_Left] == 0 && keys[XK_Right]==0 && keys[XK_a] ==0 && keys[XK_d] == 0){
+			vel.x *= 0.75f;
+		}
+
+		myPlayer->SetLinearVelocity(vel);
+	}
 }
+
+
 
 void step() {
 	b2Vec2 vel = myPlayer->GetLinearVelocity();
@@ -237,6 +375,20 @@ void step() {
 	myPlayer->SetLinearVelocity( vel );
 }
 
+void camera() {
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	float posx = myPlayer->GetWorldCenter().x*M2P;
+	float posy = myPlayer->GetWorldCenter().y*M2P;
+	float adjusty = 250;//The higher this is, the more shifted up the camera
+	float zoomScale = 1.00;//lower scale = zoomed out
+	//glPushMatrix();
+	//glTranslatef(myPlayer->GetWorldCenter().x*M2P, myPlayer->GetWorldCenter().y*M2P, 0);
+	//glPopMatrix();
+	gluOrtho2D(posx-xres/zoomScale, posx+xres/zoomScale, posy+yres/zoomScale-adjusty, posy-yres/zoomScale-adjusty);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+}
 
 
 void drawSquare(b2Vec2* points, b2Vec2 center, float angle)
@@ -271,6 +423,7 @@ void drawPlayer()
 void render(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT);
+	//glPushMatrix();
 	glLoadIdentity();
 	b2Body* tmp = world->GetBodyList();
 	b2Vec2 points[4];
@@ -281,6 +434,8 @@ void render(void)
 		drawSquare(points, tmp->GetWorldCenter(), tmp->GetAngle());
 		tmp = tmp->GetNext();
 	}
+	camera();
 	drawPlayer();
+	//glPopMatrix();
 	glXSwapBuffers(dpy, win);
 }
