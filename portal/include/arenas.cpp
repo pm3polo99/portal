@@ -65,32 +65,85 @@ void makeArena(const int &n)
 		addRect(200, -yres*4, 400, 50, 0.0f, 0.2f, 2, (char *)"bottom");
 		addRect(400, -yres*4 - 85, 50, 170, 0.0f, 0.2f, 2, (char *)"right bottom");
 		addRect(400, -yres*5 + 125, 50, 170, 0.0f, 0.2f, 2, (char *)"right top");
+        addMovingPlatform(b2Vec2(40, -4.5*yres), b2Vec2(75.0f, 200.0f), world)->SetUserData((void *)((char *)"lens 0"));
 		//
 
-		turrets[0].turret = addTurret(b2Vec2(100.0f, -yres*4 + 100), b2Vec2(50.0f, 100.0f), false, 180.0f, 180.0f, world);
+        //top left turret
+		turrets[0].turret = addTurret(b2Vec2(125.0f, -yres*4 + 75), b2Vec2(50.0f, 100.0f), false, 180.0f, 180.0f, world);
 		turrets[0].turret->SetUserData((void *)((char *)"turret"));
 		turrets[0].max_angle = 180.0f;
 		turrets[0].min_angle = 180.0f;
 		turrets[0].angleSpeed = 0.0f;
 		
-		platforms[0].platform = addMovingPlatform(b2Vec2(150, -0.25*yres), b2Vec2(200.0f, 50.0f), world);
+		//mirror1
+        platforms[0].platform = addMovingPlatform(b2Vec2(150, -1.5*yres), b2Vec2(300.0f, 50.0f), world);
 		platforms[0].platform->SetUserData((void *)((char *)"mirror"));
-		platforms[0].start = platforms[0].platform->GetPosition();
-		platforms[0].end = b2Vec2((150)*P2M, (-2.0f*yres)*P2M);
-		platforms[0].speed = 5.0f;
+		//platforms[0].start = platforms[0].platform->GetPosition();
+		//platforms[0].end = b2Vec2((150)*P2M, (-2.0f*yres)*P2M);
+		platforms[0].speed = 0.0f;
 		platforms[0].active = true;
-		platforms[0].direction = (1/getMagnitude(platforms[0].end - platforms[0].start)) * (platforms[0].end - platforms[0].start);
+		//platforms[0].direction = (1/getMagnitude(platforms[0].end - platforms[0].start)) * (platforms[0].end - platforms[0].start);
 		platforms[0].angleActive = true;
-		platforms[0].angleSpeed = 0.2f;
+		platforms[0].angleSpeed = 0.15f;
 		platforms[0].platform->SetAngularVelocity(platforms[0].angleSpeed);
 		platforms[0].maxAngle = 60.0f;
 		platforms[0].minAngle = 0.0f;
-		/*
-		turrets[1].turret = addTurret(b2Vec2(xres*2.0f-100, -yres), b2Vec2(50.0f, 100.0f), false, -45.0f, -90.0f, world);
-		turrets[1].turret->SetUserData((void *)((char *)"turret"));
-		turrets[1].max_angle = -90.0f;
-		turrets[1].min_angle = -135.0f;
-		turrets[1].angleSpeed = 0.5f;*/
+
+        //mirror2
+        platforms[1].platform = addMovingPlatform(b2Vec2(1500, -1.5*yres), b2Vec2(300.0f, 50.0f), world);
+		platforms[1].platform->SetUserData((void *)((char *)"mirror"));
+		//platforms[1].start = platforms[1].platform->GetPosition();
+		//platforms[1].end = b2Vec2((1000)*P2M, (-2.0f*yres)*P2M);
+		platforms[1].speed = 0.0f;
+		platforms[1].active = true;
+		//platforms[1].direction = (1/getMagnitude(platforms[1].end - platforms[1].start)) * (platforms[1].end - platforms[1].start);
+		platforms[1].angleActive = true;
+		platforms[1].angleSpeed = 0.15f;
+		platforms[1].platform->SetAngularVelocity(platforms[1].angleSpeed);
+		platforms[1].maxAngle = 0.0f;
+		platforms[1].minAngle = -60.0f;
+        
+        //mirror2
+        platforms[5].platform = addMovingPlatform(b2Vec2(1500, -4.5*yres), b2Vec2(300.0f, 50.0f), world);
+		platforms[5].platform->SetUserData((void *)((char *)"mirror"));
+		//platforms[5].start = platforms[5].platform->GetPosition();
+		//platforms[5].end = b2Vec2((1000)*P2M, (-2.0f*yres)*P2M);
+		platforms[5].speed = 0.0f;
+		platforms[5].active = true;
+		//platforms[5].direction = (1/getMagnitude(platforms[5].end - platforms[5].start)) * (platforms[5].end - platforms[5].start);
+		platforms[5].angleActive = true;
+		platforms[5].angleSpeed = 0.15f;
+		platforms[5].platform->SetAngularVelocity(platforms[5].angleSpeed);
+		platforms[5].maxAngle = 60.0f;
+		platforms[5].minAngle = 0.0f;
+
+        //updown middle
+        platforms[2].platform = addMovingPlatform(b2Vec2(600, -0.0*yres), b2Vec2(200.0f, 50.0f), world);
+		platforms[2].platform->SetUserData((void *)((char *)"portalable"));
+		platforms[2].start = platforms[2].platform->GetPosition();
+		platforms[2].end = b2Vec2((600)*P2M, (-4.5f*yres)*P2M);
+		platforms[2].speed = 5.0f;
+		platforms[2].active = true;
+		platforms[2].direction = (1/getMagnitude(platforms[2].end - platforms[2].start)) * (platforms[2].end - platforms[2].start);
+        
+        //downup
+        platforms[3].platform = addMovingPlatform(b2Vec2(800, -4.5*yres), b2Vec2(200.0f, 50.0f), world);
+		platforms[3].platform->SetUserData((void *)((char *)"portalable"));
+		platforms[3].start = platforms[3].platform->GetPosition();
+		platforms[3].end = b2Vec2((800)*P2M, (-0.0f*yres)*P2M);
+		platforms[3].speed = 5.0f;
+		platforms[3].active = true;
+		platforms[3].direction = (1/getMagnitude(platforms[3].end - platforms[3].start)) * (platforms[3].end - platforms[3].start);
+        
+        //updown middle
+        platforms[4].platform = addMovingPlatform(b2Vec2(1000, -0.0*yres), b2Vec2(200.0f, 50.0f), world);
+		platforms[4].platform->SetUserData((void *)((char *)"portalable"));
+		platforms[4].start = platforms[4].platform->GetPosition();
+		platforms[4].end = b2Vec2((1000)*P2M, (-4.5f*yres)*P2M);
+		platforms[4].speed = 5.0f;
+		platforms[4].active = true;
+		platforms[4].direction = (1/getMagnitude(platforms[4].end - platforms[4].start)) * (platforms[4].end - platforms[4].start);
+        
 	}
 	/* add companion cube */
 	if (n == 2)
@@ -177,7 +230,7 @@ void restart(const int & a)
 	Log("restart called, destroying and rebuilding world\n");
 	delete world;
 	world = NULL;
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 10; i++)
 	{
 		turrets[i].turret = NULL;
 		doors[i].door = NULL;

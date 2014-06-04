@@ -260,12 +260,8 @@ void physics (void)
 	{
 		if (myDoor)
 		{
-			//					 Log("game not paused, perform physics\n");
 			if (door_is_active)
 			{
-				//		Log("door_is_active is set\n");
-				//								if (!(myDoor->GetLinearVelocity().y))
-				//								{
 				if (myDoor->GetPosition().y*M2P > -1.5*yres)
 				{
 					myDoor->SetLinearVelocity(doorVel);
@@ -276,21 +272,10 @@ void physics (void)
 					b2Vec2 pos(myDoor->GetPosition().x, -1.5f*yres*P2M);
 					myDoor->SetTransform(pos, 0.0f);
 				}
-				//								}
-				//								else
-				//								{
-				//										  if (myDoor->GetPosition().y*M2P <= -1.5*yres || myDoor->GetPosition().y * M2P >= 1.0f*yres)
-				//										  {
-				//													 doorVel *= -1.0f;
-				//													 myDoor->SetLinearVelocity(doorVel);
-				//										  }
-				//								}
 			}
 			else
 			{
-				//			Log("door_is_active is NOT set\n");
 				if (myDoor->GetPosition().y*M2P <= -0.1f)
-					//								if (myDoor->GetPosition().y*M2P <= -1.5*yres || myDoor->GetPosition().y * M2P > 0.1f*yres)
 				{
 					myDoor->SetLinearVelocity(-1.0f * doorVel);
 				}
@@ -356,19 +341,9 @@ void physics (void)
 				if (contains(bdata, (const char *)"player") || contains(bdata, (const char *)"gun") || contains(bdata, (const char *)"foot"))
 				{
 					restart(0);
-					/*
-					   if (det_a)
-					   {
-					   world->DestroyBody(det_a);
-					   }
-					//										  world->DestroyBody(myGun);
-					//										  world->DestroyBody(myPlayerFoot);
-					//										  world->DestroyBody(myPlayer);
 					det_a = NULL;
 					det_b = NULL;
 					pauseGame = true;
-					return;
-					*/
 					return;
 				}
 				else
@@ -389,7 +364,6 @@ void physics (void)
 		}
 		if (toDestroy)
 		{
-			//								Log("toDestroy exists!\n");
 			char * ddata = (char *)(toDestroy->GetUserData());
 			if (toDestroy == carry)
 			{
@@ -438,16 +412,8 @@ void physics (void)
 		}
 		if (carry)
 		{
-			//								Log("in physics, before transform of carry object\n");
-			//								Log("myPlayer->pos = (%.2f, %.2f)\n", myPlayer->GetPosition().x, myPlayer->GetPosition().y);
-			//								Log("carry position = (%.2f, %.2f)\n", carry->GetPosition().x, carry->GetPosition().y);
-			//								Log("myPlayer addr = %p\n", myPlayer);
-			//								Log("carry addr = %p\n", carry);
 			b2Vec2 p(myGun->GetPosition().x + player_direction * 2.0f * player_width * P2M, myGun->GetPosition().y + 4.0f * sin(myGun->GetAngle()));
 			carry->SetTransform(p, 0.0f);
-			//								Log("after transform\n");
-			//								Log("carry addr = %p\n", carry);
-			//								Log("carry position = (%.2f, %.2f)\n", carry->GetPosition().x, carry->GetPosition().y);
 		}
 		b2Vec2 vel;
 		if (fix_vel)
@@ -488,23 +454,12 @@ void physics (void)
 			{
 				myGun->SetTransform(myGun->GetPosition(), inverseAngle*D2R);
 			}
-			//if (vel.y == 0.0f)
 			{
 				if (vel.x > -20.0f)
 				{
 					vel.x += -2.5f;
 				}
-				//myPlayer->SetLinearVelocity( vel );
 			}
-			/*
-			   else
-			   {
-			   if (vel.x > -15.0f)
-			   {
-			   vel.x += -1.0f;
-			   }
-			   }
-			   */
 			player_direction = -1;
 		}
 		if (keys[XK_Right] == 1 || keys[XK_d])
@@ -514,32 +469,14 @@ void physics (void)
 				myGun->SetTransform(myGun->GetPosition(), inverseAngle*D2R);
 			}
 
-			//if (vel.y == 0.0f)
 			{
 				if (vel.x < 20.0f)
 				{
 					vel.x += 2.5f;
 				}
 			}
-			/*
-			   else
-			   {
-			   if (vel.x < 15.0f)
-			   {
-			   vel.x += 1.0f;
-			   }
-			   }
-			   */
 			player_direction = 1;
 		}
-		/*
-		   if (!can_jump)
-		   {
-		   Log("antidamping now\n");
-		   b2Vec2 ad(5.5f * (float)(myPlayer->GetLinearVelocity().x), myPlayer->GetLinearVelocity().y);
-		   myPlayer->SetLinearVelocity(ad); // anti damping for player in air
-		   }
-		   */
 		if (keys[XK_space] == 1)
 		{
 			if (can_jump)
@@ -572,17 +509,6 @@ void physics (void)
 		}
 		if(keys[XK_t])
 		{
-			/*
-			//myDoor->SetLinearVelocity(doorVel);
-			if (door_is_active)
-			{
-			door_is_active = 1;
-			}
-			else
-			{
-			door_is_active = 0;
-			}
-			*/
 		}
 		if (keys[XK_x] || keys[XK_slash] || keys[XK_z] || keys[XK_period] || keys[XK_e] || keys[XK_q])
 		{
@@ -662,19 +588,6 @@ void physics (void)
 		}
 		else if (!(keys[XK_f]) && cwait)
 		{
-			//grab
-			/*
-			 * if there is a dynamic object with dynObj->GetWorldCenter() in range from myGun->GetPosition().x and in angular offset from myGun->GetAngle()
-			 * 	carry = dynObj;
-			 * 	carry->SetTransform(myGun->GetPosition.x + 1.0f * P2M);
-			 */
-			/*
-			   if (cwait > 0)
-			   {
-			   cwait--;
-			   }
-			   */
-			//else
 			{
 				if (carry)
 				{
@@ -750,23 +663,10 @@ void physics (void)
 			}
 			cwait = 0;
 		}
-		/*
-		   if (fix_vel)
-		   {
-		   Log("in physics fixing player velocity\n");
-		//								Log("\tmod_vel.x = %.2f\tmod_vel.y = %.2f\n\tvel.x = %.2f\tvel.y = %.2f\n", mod_vel.x, mod_vel.y, vel.x, vel.y);
-		b2Vec2 vel2(mod_vel.x + vel.x, mod_vel.y + vel.y);
-		//								Log("applying vel2.x = %.2f, vel2.y = %.2f\n", vel2.x, vel2.y);
-		myPlayer->SetLinearVelocity(vel2);
-		vel_old = vel;
-		}
-		else
-		*/
 		{
-			//								Log("applying vel.x = %.2f, vel.y = %.2f\n", vel.x, vel.y);
 			myPlayer->SetLinearVelocity(vel);
 		}
-		for(int i = 0; i < 5; i++) {
+		for(int i = 0; i < 10; i++) {
 			if (turrets[i].turret)
 			{
 				b2Joint * joint = turrets[i].turret->GetJointList()->joint;
@@ -776,7 +676,7 @@ void physics (void)
 				if(revJoint->GetJointAngle()*R2D <= turrets[i].min_angle)
 					turrets[i].turret->SetAngularVelocity(turrets[i].angleSpeed);
 				//Platforms
-				for(int i = 0; i < 5; i++) {
+				for(int i = 0; i < 10; i++) {
 					if( platforms[i].platform )
 						movePlatform2( platforms[i] );
 				}

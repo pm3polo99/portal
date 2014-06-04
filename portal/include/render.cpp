@@ -196,7 +196,7 @@ void init_images(void)
     sdata = buildAlphaData(turretEnemyImage);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, turretEnemyImage->width, turretEnemyImage->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, sdata);
     free(sdata);
-    
+
     turretEnemyRightImage = ppm6GetImage((char *)"./images/TurretEnemyRight.ppm");
     glGenTextures(1, &turretEnemyRightTexture);
     glBindTexture(GL_TEXTURE_2D, turretEnemyRightTexture);
@@ -774,6 +774,19 @@ void drawLaser(b2Vec2 point1, b2Vec2 point2)
                         isMirror = false;
                         isLportal = false;
                     }
+                    if (contains((char *)(b->GetUserData()), (const char *)"lens"))
+                    {
+                        isRportal = false;
+                        isMirror = false;
+                        isLportal = false;
+                        if (contains((char *)(b->GetUserData()), (const char *)"0"))
+                            if(doors[0].door)
+                                doors[0].active = true;
+                    }
+                    else {
+                        if(doors[0].door)
+                            doors[0].active = false;
+                    }
                 }
                 closestFraction = output.fraction;
                 intersectionNormal = output.normal;
@@ -824,14 +837,14 @@ void drawLaser(b2Vec2 point1, b2Vec2 point2)
 
         //recurse
         if(isLportal) {
-        b2Vec2 projectedOntoNormal = b2Dot(remainingRay, intersectionNormal) * p2_dir;
-        b2Vec2 nextp2 = point2 - 2 * projectedOntoNormal;
-        drawLaser(portal2, nextp2);
+            b2Vec2 projectedOntoNormal = b2Dot(remainingRay, intersectionNormal) * p2_dir;
+            b2Vec2 nextp2 = point2 - 2 * projectedOntoNormal;
+            drawLaser(portal2, nextp2);
         }
         else if(isRportal) {
-        b2Vec2 projectedOntoNormal = b2Dot(remainingRay, intersectionNormal) * p1_dir;
-        b2Vec2 nextp2 = point2 - 2 * projectedOntoNormal;
-        drawLaser(portal1, nextp2);
+            b2Vec2 projectedOntoNormal = b2Dot(remainingRay, intersectionNormal) * p1_dir;
+            b2Vec2 nextp2 = point2 - 2 * projectedOntoNormal;
+            drawLaser(portal1, nextp2);
         }
     }
 }
@@ -1142,7 +1155,7 @@ void render(void)
         p_dest = NULL;
     }
     drawPlayer();
-    for(int i = 0; i < 5; i++) {
+    for(int i = 0; i < 10; i++) {
         if (turrets[i].turret)
         {
             calcLaser(turrets[i]);

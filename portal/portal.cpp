@@ -118,12 +118,12 @@ int cwait = 0;
 b2Body * myButton;
 int door_is_active = 0;
 int button_pressed = 0;
-Turret * turrets = new Turret[5];
-Button * buttons = new Button[5];
-Door * doors = new Door[5];
-Mine * mines = new Mine[5];
-Platform * platforms = new Platform[5];
-Lens * lens = new Lens[5];
+Turret * turrets = new Turret[10];
+Button * buttons = new Button[10];
+Door * doors = new Door[10];
+Mine * mines = new Mine[10];
+Platform * platforms = new Platform[10];
+Lens * lens = new Lens[10];
 
 //Setup timers
 const double physicsRate = 1.0 / 60.0;
