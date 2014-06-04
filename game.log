@@ -1,0 +1,308 @@
+initializing world for first game
+makeArena called, building arena 0
+&myPlayerFoot before = (nil)
+myPlayer = (nil)
+&myPlayerFoot after = 0xfc2620
+myPlayer = 0xfc24a0
+creating floor portalable
+creating lower third left wall
+creating middle third left wall portalable
+creating upper third left wall
+creating right wall portalable
+creating button 1
+creating end
+creating angled wall portalable top
+creating angled wall portalable bottom
+creating platform
+creating mine deadly
+done!
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+foot contacted something ( B ):
+	hit gun
+	0.0000
+	0.0000
+	-0.0000
+	-0.0000
+	24.2720
+	24.2716
+	24.2718
+	24.2718
+	7.0710
+	5.1006
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+foot stopped contacting something ( B ):
+	stopped hitting gun
+	0.0000
+	0.0000
+	-0.0000
+	-0.0000
+	24.2740
+	24.2697
+	24.2738
+	24.2699
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.0000
+	0.0000
+	-0.0000
+	-0.0000
+	24.2760
+	24.2677
+	24.2758
+	24.2679
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.0000
+	0.0000
+	-0.0000
+	-0.0000
+	24.2780
+	24.2657
+	24.2778
+	24.2659
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.0000
+	0.0000
+	-0.0000
+	-0.0000
+	24.2832
+	24.2605
+	24.2830
+	24.2607
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.0000
+	0.0000
+	-0.0000
+	-0.0000
+	24.2865
+	24.2572
+	24.2863
+	24.2574
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.0000
+	0.0000
+	-0.0000
+	-0.0000
+	24.2841
+	24.2596
+	24.2841
+	24.2596
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.0000
+	0.0000
+	-0.0000
+	-0.0000
+	24.2806
+	24.2631
+	24.2805
+	24.2632
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.0000
+	0.0000
+	-0.0000
+	-0.0000
+	24.2776
+	24.2661
+	24.2775
+	24.2662
+	0.0000
+	0.0000
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.0000
+	22.1979
+	0.0000
+	22.7270
+	21.2238
+	20.6883
+	24.2754
+	24.2683
+	24.2754
+	24.2683
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	1.1415
+	10.8294
+	1.0623
+	9.9645
+	0.0000
+	11.4536
+	12.3345
+	0.0000
+	24.2740
+	24.2697
+	24.2740
+	24.2697
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.9416
+	1.9152
+	0.9219
+	2.0277
+	3.7558
+	3.6801
+	24.2730
+	24.2707
+	24.2731
+	24.2706
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.3497
+	1.6324
+	0.4431
+	1.8303
+	3.6835
+	3.4875
+	24.2728
+	24.2709
+	24.2729
+	24.2708
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.3145
+	2.7511
+	0.3606
+	2.7579
+	4.3378
+	4.3012
+	24.2728
+	24.2709
+	24.2727
+	24.2710
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.2201
+	3.0631
+	0.2248
+	3.0481
+	4.6043
+	4.6195
+	24.2726
+	24.2710
+	24.2726
+	24.2711
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.2381
+	3.0166
+	0.2404
+	3.0065
+	4.5599
+	4.5704
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.2701
+	2.9302
+	0.2724
+	2.9277
+	4.4804
+	4.4816
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.2798
+	2.9039
+	0.2815
+	2.9040
+	4.4550
+	4.4534
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.2760
+	2.9128
+	0.2777
+	2.9123
+	4.4613
+	4.4602
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.2750
+	2.9194
+	0.2736
+	2.9211
+	4.4684
+	4.4654
+	0.0094
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.2749
+	2.9193
+	0.2736
+	2.9213
+	4.4683
+	4.4646
+	0.0091
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.2746
+	2.9194
+	0.2736
+	2.9211
+	4.4676
+	4.4643
+	0.0085
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.2744
+	2.9197
+	0.2733
+	2.9215
+	4.4675
+	4.4642
+	0.0086
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.2742
+	2.9201
+	0.2730
+	2.9219
+	4.4675
+	4.4642
+	0.0087
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.2740
+	2.9204
+	0.2728
+	2.9222
+	4.4675
+	4.4641
+	0.0088
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.2739
+	2.9206
+	0.2726
+	2.9225
+	4.4675
+	4.4640
+	0.0089
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.2737
+	2.9209
+	0.2724
+	2.9228
+	4.4675
+	4.4639
+	0.0090
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.2736
+	2.9211
+	0.2723
+	2.9231
+	4.4675
+	4.4639
+	0.0091
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.2734
+	2.9214
+	0.2721
+	2.9233
+	4.4674
+	4.4638
+	0.0091
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+	0.2733
+	2.9216
+	0.2720
+	2.9236
+	4.4674
+	4.4638
+	0.0092
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+pos.x = 48.00, fabs(rmax) = 800.00, fabs(lmax) = 90.00
+calling XDestroyWindow
+calling XCloseDisplay
+done with cleanupXWindows
