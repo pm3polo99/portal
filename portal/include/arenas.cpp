@@ -55,18 +55,21 @@ void makeArena(const int &n)
 
 		gameFloor = addRect(xres * 2.0f, 0.0f, xres*4.0f, 50.0f, 0.7f, 0.2f, 2, (char *)"floor portalable");
 		gameFloor->SetAwake(false);
-		addRect(xres * 1.5f, -yres*5, xres*3.0f, 50.0f, 0.7f, 0.2f, 2, (char *)"roof");
+		addRect(xres * 1.5f, -yres*5, xres*3.0f, 50.0f, 0.7f, 0.2f, 2, (char *)"ceiling portalable");
 
 		((b2Body *)(addRect(0.0f, -2.5*yres, 50, yres*5, 0.0f, 0.2f, 2, (char *)"left wall")))->SetAwake(false);//left wall
 		((b2Body *)(addRect(xres*3.0f, -2.5*yres, 50, yres*5, 0.0f, 0.2f, 2, (char *)"right wall")))->SetAwake(false);//right wall
 		((b2Body *)(addRect(xres*9.4f, -150.0f, 20.0f, 300.0f, 0.0f, 0.2f, 2, (char *)"end", 180.0f)))->SetAwake(false);// end point
 
 		//Lens Box
-		addRect(200, -yres*4, 400, 50, 0.0f, 0.2f, 2, (char *)"bottom");
-		addRect(400, -yres*4 - 85, 50, 170, 0.0f, 0.2f, 2, (char *)"right bottom");
-		addRect(400, -yres*5 + 125, 50, 170, 0.0f, 0.2f, 2, (char *)"right top");
+		addRect(200, -yres*4, 400, 50, 0.0f, 0.2f, 2, (char *)"bottom portalable");
+		addRect(400, -yres*4 - 85, 50, 170, 0.0f, 0.2f, 2, (char *)"right bottom portable");
+		addRect(400, -yres*5 + 105, 50, 170, 0.0f, 0.2f, 2, (char *)"right top portalable");
         addMovingPlatform(b2Vec2(40, -4.5*yres), b2Vec2(75.0f, 200.0f), world)->SetUserData((void *)((char *)"lens 0"));
 		//
+
+        addRect(xres * 1.0f, onFloor - 15.0f, 100.0f, 100.0f, 0.9f, 0.2f, 1);//cube1
+        addRect(xres * 1.5f, onFloor - 15.0f, 100.0f, 100.0f, 0.9f, 0.2f, 1);//cube2
 
         //top left turret
 		turrets[0].turret = addTurret(b2Vec2(125.0f, -yres*4 + 75), b2Vec2(50.0f, 100.0f), false, 180.0f, 180.0f, world);
@@ -86,11 +89,11 @@ void makeArena(const int &n)
 		platforms[0].angleActive = true;
 		platforms[0].angleSpeed = 0.15f;
 		platforms[0].platform->SetAngularVelocity(platforms[0].angleSpeed);
-		platforms[0].maxAngle = 60.0f;
+		platforms[0].maxAngle = 45.0f;
 		platforms[0].minAngle = 0.0f;
 
         //mirror2
-        platforms[1].platform = addMovingPlatform(b2Vec2(1500, -1.5*yres), b2Vec2(300.0f, 50.0f), world);
+        platforms[1].platform = addMovingPlatform(b2Vec2(1750, -1.5*yres), b2Vec2(300.0f, 50.0f), world);
 		platforms[1].platform->SetUserData((void *)((char *)"mirror"));
 		//platforms[1].start = platforms[1].platform->GetPosition();
 		//platforms[1].end = b2Vec2((1000)*P2M, (-2.0f*yres)*P2M);
@@ -101,10 +104,10 @@ void makeArena(const int &n)
 		platforms[1].angleSpeed = 0.15f;
 		platforms[1].platform->SetAngularVelocity(platforms[1].angleSpeed);
 		platforms[1].maxAngle = 0.0f;
-		platforms[1].minAngle = -60.0f;
+		platforms[1].minAngle = -45.0f;
         
-        //mirror2
-        platforms[5].platform = addMovingPlatform(b2Vec2(1500, -4.5*yres), b2Vec2(300.0f, 50.0f), world);
+        //mirror3
+        platforms[5].platform = addMovingPlatform(b2Vec2(1750, -4.5*yres), b2Vec2(300.0f, 50.0f), world);
 		platforms[5].platform->SetUserData((void *)((char *)"mirror"));
 		//platforms[5].start = platforms[5].platform->GetPosition();
 		//platforms[5].end = b2Vec2((1000)*P2M, (-2.0f*yres)*P2M);
@@ -114,12 +117,12 @@ void makeArena(const int &n)
 		platforms[5].angleActive = true;
 		platforms[5].angleSpeed = 0.15f;
 		platforms[5].platform->SetAngularVelocity(platforms[5].angleSpeed);
-		platforms[5].maxAngle = 60.0f;
+		platforms[5].maxAngle = 45.0f;
 		platforms[5].minAngle = 0.0f;
 
         //updown middle
-        platforms[2].platform = addMovingPlatform(b2Vec2(600, -0.0*yres), b2Vec2(200.0f, 50.0f), world);
-		platforms[2].platform->SetUserData((void *)((char *)"portalable"));
+        platforms[2].platform = addMovingPlatform(b2Vec2(600, -1.0*yres), b2Vec2(200.0f, 50.0f), world);
+		platforms[2].platform->SetUserData((void *)((char *)"moving"));
 		platforms[2].start = platforms[2].platform->GetPosition();
 		platforms[2].end = b2Vec2((600)*P2M, (-4.5f*yres)*P2M);
 		platforms[2].speed = 5.0f;
@@ -128,16 +131,16 @@ void makeArena(const int &n)
         
         //downup
         platforms[3].platform = addMovingPlatform(b2Vec2(800, -4.5*yres), b2Vec2(200.0f, 50.0f), world);
-		platforms[3].platform->SetUserData((void *)((char *)"portalable"));
+		platforms[3].platform->SetUserData((void *)((char *)"moving"));
 		platforms[3].start = platforms[3].platform->GetPosition();
-		platforms[3].end = b2Vec2((800)*P2M, (-0.0f*yres)*P2M);
+		platforms[3].end = b2Vec2((800)*P2M, (-0.5f*yres)*P2M);
 		platforms[3].speed = 5.0f;
 		platforms[3].active = true;
 		platforms[3].direction = (1/getMagnitude(platforms[3].end - platforms[3].start)) * (platforms[3].end - platforms[3].start);
         
         //updown middle
         platforms[4].platform = addMovingPlatform(b2Vec2(1000, -0.0*yres), b2Vec2(200.0f, 50.0f), world);
-		platforms[4].platform->SetUserData((void *)((char *)"portalable"));
+		platforms[4].platform->SetUserData((void *)((char *)"moving"));
 		platforms[4].start = platforms[4].platform->GetPosition();
 		platforms[4].end = b2Vec2((1000)*P2M, (-4.5f*yres)*P2M);
 		platforms[4].speed = 5.0f;
